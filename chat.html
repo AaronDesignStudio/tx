@@ -1,0 +1,767 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black">
+    <title>Chat - Terminalix</title>
+    <link rel="stylesheet" href="styles.css">
+    <style>
+        body {
+            background: var(--primary-black);
+            min-height: 100vh;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* Chat header */
+        .chat-header {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            background: var(--primary-black);
+            border-bottom: 1px solid var(--border-color);
+            padding: 20px;
+            z-index: 100;
+            backdrop-filter: blur(10px);
+            background: rgba(0, 0, 0, 0.95);
+        }
+
+        .chat-header-content {
+            max-width: 800px;
+            margin: 0 auto;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .chat-title {
+            font-size: 18px;
+            font-weight: 300;
+            color: var(--primary-white);
+        }
+
+        .logo-ai-container {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .header-logo {
+            height: 32px;
+            width: auto;
+            filter: drop-shadow(0 0 10px rgba(255, 215, 0, 0.3));
+        }
+
+        .ai-text {
+            font-size: 32px;
+            font-weight: 300;
+            letter-spacing: 2px;
+            color: var(--accent-yellow);
+            text-shadow: 0 0 20px rgba(255, 215, 0, 0.5);
+        }
+
+        .back-to-home {
+            background: transparent;
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            color: var(--primary-white);
+            padding: 8px 16px;
+            border-radius: 20px;
+            cursor: pointer;
+            font-size: 14px;
+            transition: all 0.3s ease;
+        }
+
+        .back-to-home:hover {
+            background: rgba(255, 255, 255, 0.1);
+            border-color: var(--accent-yellow);
+        }
+
+        /* Chat messages area */
+        .chat-messages-area {
+            flex: 1;
+            padding: 100px 20px 120px;
+            overflow-y: auto;
+            -webkit-overflow-scrolling: touch;
+        }
+
+        .chat-messages-container {
+            max-width: 800px;
+            margin: 0 auto;
+        }
+
+        /* Message bubbles */
+        .message-bubble {
+            margin-bottom: 20px;
+            opacity: 0;
+            animation: messageFadeIn 0.5s ease forwards;
+        }
+
+        @keyframes messageFadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .user-message {
+            display: flex;
+            justify-content: flex-end;
+        }
+
+        .assistant-message {
+            display: flex;
+            justify-content: flex-start;
+        }
+
+        .message-content {
+            max-width: 70%;
+            padding: 12px 18px;
+            border-radius: 18px;
+            font-size: 16px;
+            line-height: 1.4;
+            font-weight: 300;
+        }
+
+        .user-message .message-content {
+            background: var(--accent-yellow);
+            color: var(--primary-black);
+            border-bottom-right-radius: 4px;
+        }
+
+        .assistant-message .message-content {
+            background: var(--secondary-gray);
+            color: var(--primary-white);
+            border-bottom-left-radius: 4px;
+        }
+
+        /* Product preview in assistant message */
+        .product-preview-container {
+            margin-top: 12px;
+        }
+
+        .product-preview-text {
+            margin-bottom: 12px;
+        }
+
+        .product-preview-grid {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 12px;
+        }
+
+        .product-preview-item {
+            width: 80px;
+            height: 100px;
+            border-radius: 8px;
+            overflow: hidden;
+            cursor: pointer;
+            transition: transform 0.3s ease;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .product-preview-item:hover {
+            transform: scale(1.05);
+        }
+
+        .product-preview-item img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .view-all-button {
+            background: transparent;
+            border: 1px solid var(--accent-yellow);
+            color: var(--accent-yellow);
+            padding: 8px 16px;
+            border-radius: 16px;
+            cursor: pointer;
+            font-size: 14px;
+            transition: all 0.3s ease;
+            width: 100%;
+            margin-top: 8px;
+        }
+
+        .view-all-button:hover {
+            background: var(--accent-yellow);
+            color: var(--primary-black);
+        }
+
+        /* Chat input area */
+        .chat-input-area {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: var(--primary-black);
+            padding: 15px 20px 20px;
+            border-top: 1px solid var(--border-color);
+            backdrop-filter: blur(10px);
+            background: rgba(0, 0, 0, 0.95);
+            z-index: 100; /* Above the drawer */
+        }
+
+        .chat-input-container {
+            max-width: 800px;
+            margin: 0 auto;
+            display: flex;
+            align-items: center;
+            background: var(--input-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 25px;
+            padding: 0 20px;
+            height: 50px;
+            transition: all 0.3s ease;
+        }
+
+        .chat-input-container:focus-within {
+            border-color: var(--accent-yellow);
+            box-shadow: 0 0 0 1px var(--accent-yellow);
+        }
+
+        .chat-input {
+            flex: 1;
+            background: none;
+            border: none;
+            outline: none;
+            color: var(--primary-white);
+            font-size: 16px;
+            padding: 10px 0;
+        }
+
+        .chat-input::placeholder {
+            color: #666;
+        }
+
+        /* Loading dots animation */
+        .typing-indicator {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+            padding: 8px 12px;
+        }
+
+        .typing-dot {
+            width: 8px;
+            height: 8px;
+            background: #666;
+            border-radius: 50%;
+            animation: typingDot 1.4s ease-in-out infinite;
+        }
+
+        .typing-dot:nth-child(2) {
+            animation-delay: 0.2s;
+        }
+
+        .typing-dot:nth-child(3) {
+            animation-delay: 0.4s;
+        }
+
+        @keyframes typingDot {
+            0%, 60%, 100% {
+                transform: scale(0.8);
+                opacity: 0.5;
+            }
+            30% {
+                transform: scale(1);
+                opacity: 1;
+            }
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .message-content {
+                max-width: 85%;
+            }
+        }
+        /* Search results drawer */
+        .search-results-overlay {
+            position: fixed;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: var(--primary-black);
+            transform: translateY(100%);
+            transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            z-index: 90; /* Below the chat input area */
+            overflow-y: auto;
+            border-top: 1px solid var(--border-color);
+            border-top-left-radius: 20px;
+            border-top-right-radius: 20px;
+            box-shadow: 0 -10px 30px rgba(0, 0, 0, 0.5);
+        }
+
+        .search-results-overlay.active {
+            transform: translateY(0);
+        }
+
+        .search-results-content {
+            padding: 20px 0 100px;
+            overflow-y: auto;
+            max-height: 100%;
+        }
+
+        .drawer-handle {
+            width: 40px;
+            height: 4px;
+            background: rgba(255, 255, 255, 0.3);
+            border-radius: 2px;
+            margin: 12px auto 20px;
+        }
+
+        .close-results {
+            position: absolute;
+            top: 16px;
+            right: 20px;
+            background: transparent;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            color: var(--primary-white);
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            cursor: pointer;
+            font-size: 18px;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 0;
+        }
+
+        .close-results:hover {
+            background: rgba(255, 255, 255, 0.1);
+            border-color: var(--accent-yellow);
+        }
+    </style>
+</head>
+<body>
+    <div class="chat-header">
+        <div class="chat-header-content">
+            <div class="logo-ai-container">
+                <svg class="header-logo" width="190" height="48" viewBox="0 0 190 48" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M8.48006 4.79777V47.9888H3.7615V4.79777H0V0.0675964H12.1859V4.79777H8.48006Z" fill="white"/>
+                    <path d="M20.8551 47.9888V0.0563354H30.6595V4.78651H25.5181V20.779H29.9028V25.5767H25.5181V43.2473H30.7597V47.9775H20.8551V47.9888Z" fill="white"/>
+                    <path d="M48.1761 47.9888C47.8756 46.3107 47.7754 44.4524 47.7309 42.3013L47.5863 30.8025C47.5417 28.1108 47.2413 27.0296 45.8947 27.0296H45.0489V48H40.1634V0.0563354H47.0966C51.0361 0.0563354 52.8835 2.45521 52.8835 7.48946V18.6279C52.8835 21.3196 51.8819 22.8851 49.6451 23.8424V23.9662C52.0377 24.7433 52.4384 27.9193 52.5385 34.0911L52.6387 42.4815C52.6387 44.4524 52.7388 46.2544 53.1395 47.9888H48.1761ZM47.9201 6.89256C47.9201 5.51856 47.3748 4.85408 46.2286 4.85408H45.0267V22.2318H46.0282C47.3748 22.2318 47.9201 21.5786 47.9201 19.833V6.89256Z" fill="white"/>
+                    <path d="M74.807 47.9888V19.7654H74.7069L71.8579 47.9775H69.1091L66.1155 19.7654V47.9775H61.7976V0.0563354H67.3397L70.5225 29.3496H70.6671L74.117 0.0563354H79.0693V47.9775H74.807V47.9888Z" fill="white"/>
+                    <path d="M88.6177 47.9888V0.0563354H93.3363V47.9775H88.6177V47.9888Z" fill="white"/>
+                    <path d="M112.211 47.9888L107.748 20.4862H107.548V47.9888H103.385V0.0563354H107.703L111.487 25.0362H111.632V0.0563354H115.905V47.9775H112.211V47.9888Z" fill="white"/>
+                    <path d="M132.854 47.9887L132.476 38.2243H129.093L128.525 47.9887H124.285L128.236 0H134L137.573 47.9887H132.854ZM130.907 10.1811H130.762L129.382 33.5504H132.186L130.907 10.1811Z" fill="white"/>
+                    <path d="M146.331 47.9888V0.0563354H151.261V43.2473H156.792V47.9775H146.331V47.9888Z" fill="white"/>
+                    <path d="M185.003 47.9888L183.189 30.4421H183.045L181.186 47.9888H176.902L180.518 22.7724L176.946 0.0675964H181.898L183.712 16.7809H183.901L185.76 0.0675964H189.955L186.428 22.8963L190 48H185.003V47.9888Z" fill="white"/>
+                </svg>
+                <span class="ai-text">AI</span>
+            </div>
+            <button class="back-to-home" onclick="window.location.href='index.html'">New Search</button>
+        </div>
+    </div>
+
+    <div class="chat-messages-area" id="chatMessagesArea">
+        <div class="chat-messages-container" id="chatMessagesContainer">
+            <!-- Messages will be added here dynamically -->
+        </div>
+    </div>
+
+    <div class="chat-input-area">
+        <div class="chat-input-container">
+            <input 
+                type="text" 
+                class="chat-input" 
+                id="chatInput" 
+                placeholder="Ask for anything..."
+            >
+            <button class="mic-button" id="micButton">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M12 1C10.34 1 9 2.34 9 4V12C9 13.66 10.34 15 12 15C13.66 15 15 13.66 15 12V4C15 2.34 13.66 1 12 1Z" fill="currentColor"/>
+                    <path d="M17 12C17 14.76 14.76 17 12 17C9.24 17 7 14.76 7 12H5C5 15.53 7.61 18.43 11 18.92V23H13V18.92C16.39 18.43 19 15.53 19 12H17Z" fill="currentColor"/>
+                </svg>
+            </button>
+            <button class="send-button" id="sendButton">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M2 21L23 12L2 3V10L17 12L2 14V21Z" fill="currentColor"/>
+                </svg>
+            </button>
+        </div>
+    </div>
+
+    <script>
+        // Get URL parameters
+        const urlParams = new URLSearchParams(window.location.search);
+        const searchQuery = urlParams.get('q') || '';
+        
+        // Product data
+        const products = {
+            'red dress for dinner party': [
+                { image: 'red-dress/r015830017-11742906075_1.jpg', title: 'Burgundy Halter', price: '$89' },
+                { image: 'red-dress/r018530013-11749027961.jpg', title: 'Red Satin Bubble', price: '$125' },
+                { image: 'red-dress/r186760017-11750751808.jpg', title: 'Wine One-Shoulder', price: '$110' },
+                { image: 'red-dress/r194000013-11749651391.jpg', title: 'Fuchsia Asymmetric', price: '$195' },
+                { image: 'red-dress/w578910013-11722528067.jpg', title: 'Red Silk Wrap', price: '$165' },
+                { image: 'red-dress/w801080017-21743669003.jpg', title: 'Crimson Ruffle', price: '$150' }
+            ]
+        };
+
+        const chatContainer = document.getElementById('chatMessagesContainer');
+        const chatInput = document.getElementById('chatInput');
+        const sendButton = document.getElementById('sendButton');
+        const micButton = document.getElementById('micButton');
+
+        // Add user message
+        function addUserMessage(text) {
+            const messageDiv = document.createElement('div');
+            messageDiv.className = 'message-bubble user-message';
+            messageDiv.innerHTML = `
+                <div class="message-content">${text}</div>
+            `;
+            chatContainer.appendChild(messageDiv);
+            scrollToBottom();
+        }
+
+        // Add assistant message with product preview
+        function addAssistantMessage(productList) {
+            // First show typing indicator
+            const typingDiv = document.createElement('div');
+            typingDiv.className = 'message-bubble assistant-message';
+            typingDiv.id = 'typingIndicator';
+            typingDiv.innerHTML = `
+                <div class="message-content">
+                    <div class="typing-indicator">
+                        <div class="typing-dot"></div>
+                        <div class="typing-dot"></div>
+                        <div class="typing-dot"></div>
+                    </div>
+                </div>
+            `;
+            chatContainer.appendChild(typingDiv);
+            scrollToBottom();
+
+            // Replace with actual message after delay
+            setTimeout(() => {
+                typingDiv.remove();
+                
+                const messageDiv = document.createElement('div');
+                messageDiv.className = 'message-bubble assistant-message';
+                messageDiv.style.animationDelay = '0.1s';
+                
+                const previewProducts = productList.slice(0, 3);
+                
+                messageDiv.innerHTML = `
+                    <div class="message-content">
+                        <div class="product-preview-container">
+                            <div class="product-preview-text">I found ${productList.length} perfect options for your search!</div>
+                            <div class="product-preview-grid">
+                                ${previewProducts.map(product => `
+                                    <div class="product-preview-item" onclick="viewAllProducts()">
+                                        <img src="${product.image}" alt="${product.title}">
+                                    </div>
+                                `).join('')}
+                            </div>
+                            <button class="view-all-button" onclick="viewAllProducts()">View all ${productList.length} products</button>
+                        </div>
+                    </div>
+                `;
+                
+                chatContainer.appendChild(messageDiv);
+                scrollToBottom();
+            }, 2000);
+        }
+
+        // Navigate to full search results
+        function viewAllProducts() {
+            const overlay = document.getElementById('searchResultsOverlay');
+            const content = document.getElementById('searchResultsContent');
+            
+            // Get the last user message bubble position
+            const userMessages = document.querySelectorAll('.user-message');
+            const lastUserMessage = userMessages[userMessages.length - 1];
+            const messageRect = lastUserMessage.getBoundingClientRect();
+            const messageBottom = messageRect.bottom;
+            
+            // Calculate drawer height (from bottom to 20px below the user message)
+            const drawerHeight = window.innerHeight - messageBottom - 20;
+            
+            // Set the drawer height
+            overlay.style.height = `${drawerHeight}px`;
+            
+            // Get the products for the current search
+            const productList = products['red dress for dinner party'] || [];
+            
+            // Generate the search results HTML
+            const resultsHTML = `
+                <div class="results-container visible">
+                    <div class="results-header">
+                        <p class="results-count">${productList.length} results found</p>
+                    </div>
+                    <div class="products-grid">
+                        ${productList.map((product, index) => `
+                            <div class="product-card" style="animation-delay: ${0.1 * index}s">
+                                <div class="product-image-container">
+                                    <img src="${product.image}" alt="${product.title}" class="product-image">
+                                    <button class="add-to-cart-btn">
+                                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                            <path d="M7 22C5.89543 22 5 21.1046 5 20C5 18.8954 5.89543 18 7 18C8.10457 18 9 18.8954 9 20C9 21.1046 8.10457 22 7 22Z" stroke="white" stroke-width="2"/>
+                                            <path d="M17 22C15.8954 22 15 21.1046 15 20C15 18.8954 15.8954 18 17 18C18.1046 18 19 18.8954 19 20C19 21.1046 18.1046 22 17 22Z" stroke="white" stroke-width="2"/>
+                                            <path d="M1 1H5L7.68 14.39C7.77144 14.8504 8.02191 15.264 8.38755 15.5583C8.75318 15.8526 9.2107 16.009 9.68 16H16.4C16.8693 16.009 17.3268 15.8526 17.6925 15.5583C18.0581 15.264 18.3086 14.8504 18.4 14.39L20 6H6" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                                        </svg>
+                                    </button>
+                                </div>
+                                <div class="product-info">
+                                    <h3 class="product-title">${product.title}</h3>
+                                    <p class="product-price">${product.price}</p>
+                                    ${product.originalPrice ? `<span class="original-price">${product.originalPrice}</span>` : ''}
+                                    ${product.discount ? `<span class="discount-badge">${product.discount}</span>` : ''}
+                                </div>
+                            </div>
+                        `).join('')}
+                    </div>
+                </div>
+            `;
+            
+            // Update the content
+            content.innerHTML = resultsHTML;
+            
+            // Add the necessary styles from search-results.html
+            addSearchResultsStyles();
+            
+            // Show the overlay with animation
+            setTimeout(() => {
+                overlay.classList.add('active');
+            }, 50);
+        }
+        
+        // Close search results overlay
+        function closeSearchResults() {
+            const overlay = document.getElementById('searchResultsOverlay');
+            overlay.classList.remove('active');
+        }
+        
+        // Add search results specific styles
+        function addSearchResultsStyles() {
+            if (!document.getElementById('searchResultsStyles')) {
+                const styleSheet = document.createElement('style');
+                styleSheet.id = 'searchResultsStyles';
+                styleSheet.textContent = `
+                    .results-container {
+                        padding-top: 0;
+                        padding-bottom: 20px;
+                    }
+                    
+                    .results-header {
+                        text-align: center;
+                        margin-bottom: 30px;
+                        padding: 0 20px;
+                    }
+                    
+                    .results-count {
+                        font-size: 16px;
+                        color: var(--primary-white);
+                        font-weight: 300;
+                        margin: 0;
+                    }
+                    
+                    .products-grid {
+                        display: grid;
+                        grid-template-columns: repeat(2, 1fr);
+                        gap: 20px;
+                        max-width: 800px;
+                        margin: 0 auto;
+                        padding: 0 20px;
+                    }
+                    
+                    .product-card {
+                        opacity: 0;
+                        transform: translateY(20px);
+                        animation: productFadeIn 0.6s ease forwards;
+                        cursor: pointer;
+                        transition: transform 0.3s ease;
+                    }
+                    
+                    .product-card:hover {
+                        transform: scale(1.02);
+                    }
+                    
+                    @keyframes productFadeIn {
+                        to {
+                            opacity: 1;
+                            transform: translateY(0);
+                        }
+                    }
+                    
+                    .product-image-container {
+                        width: 100%;
+                        height: 400px;
+                        border-radius: 16px;
+                        overflow: hidden;
+                        margin-bottom: 16px;
+                        background: linear-gradient(135deg, #1a1a1a 0%, #2a2a2a 100%);
+                        border: 1px solid rgba(255, 215, 0, 0.2);
+                        position: relative;
+                    }
+                    
+                    .add-to-cart-btn {
+                        position: absolute;
+                        bottom: 12px;
+                        right: 12px;
+                        width: 48px;
+                        height: 48px;
+                        border-radius: 50%;
+                        background: rgba(0, 0, 0, 0.8);
+                        border: 1px solid rgba(255, 255, 255, 0.2);
+                        display: flex;
+                        align-items: center;
+                        justify-content: center;
+                        cursor: pointer;
+                        transition: all 0.3s ease;
+                        opacity: 0;
+                    }
+                    
+                    .product-card:hover .add-to-cart-btn {
+                        opacity: 1;
+                    }
+                    
+                    .add-to-cart-btn:hover {
+                        background: var(--accent-yellow);
+                        border-color: var(--accent-yellow);
+                        transform: scale(1.1);
+                    }
+                    
+                    .product-image {
+                        width: 100%;
+                        height: 100%;
+                        object-fit: cover;
+                    }
+                    
+                    .product-info {
+                        padding: 0 8px;
+                    }
+                    
+                    .product-title {
+                        font-size: 14px;
+                        font-weight: 400;
+                        color: var(--primary-white);
+                        margin-bottom: 8px;
+                        line-height: 1.4;
+                    }
+                    
+                    .product-price {
+                        font-size: 16px;
+                        font-weight: 600;
+                        color: var(--primary-white);
+                        margin-bottom: 4px;
+                    }
+                    
+                    .original-price {
+                        font-size: 14px;
+                        color: #666;
+                        text-decoration: line-through;
+                        margin-right: 8px;
+                    }
+                    
+                    .discount-badge {
+                        font-size: 12px;
+                        color: var(--accent-yellow);
+                        font-weight: 600;
+                    }
+                    
+                    @media (max-width: 768px) {
+                        .product-image-container {
+                            height: 280px;
+                        }
+                    }
+                `;
+                document.head.appendChild(styleSheet);
+            }
+        }
+
+        // Scroll to bottom of chat
+        function scrollToBottom() {
+            const messagesArea = document.getElementById('chatMessagesArea');
+            messagesArea.scrollTop = messagesArea.scrollHeight;
+        }
+
+        // Handle send
+        function handleSend() {
+            const message = chatInput.value.trim();
+            if (message) {
+                addUserMessage(message);
+                chatInput.value = '';
+                
+                // Simulate response
+                const productList = products['red dress for dinner party'] || [];
+                addAssistantMessage(productList);
+            }
+        }
+
+        // Initialize chat with search query if provided
+        if (searchQuery) {
+            addUserMessage(searchQuery);
+            const productList = products['red dress for dinner party'] || [];
+            addAssistantMessage(productList);
+        }
+
+        // Event listeners
+        sendButton.addEventListener('click', handleSend);
+        chatInput.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') {
+                e.preventDefault();
+                handleSend();
+            }
+        });
+
+        // Microphone functionality
+        const simulateVoiceInput = () => {
+            const targetPhrase = "red dress for dinner party";
+            const words = targetPhrase.split(' ');
+            micButton.classList.add('recording');
+            chatInput.value = '';
+            chatInput.focus();
+            
+            chatInput.style.transition = 'all 0.3s ease';
+            
+            let currentWordIndex = 0;
+            const addWord = () => {
+                if (currentWordIndex < words.length) {
+                    if (currentWordIndex > 0) {
+                        chatInput.value += ' ';
+                    }
+                    
+                    chatInput.style.opacity = '0.8';
+                    chatInput.value += words[currentWordIndex];
+                    
+                    setTimeout(() => {
+                        chatInput.style.opacity = '1';
+                    }, 50);
+                    
+                    currentWordIndex++;
+                    
+                    setTimeout(addWord, 300);
+                } else {
+                    micButton.classList.remove('recording');
+                    chatInput.style.transition = '';
+                }
+            };
+            
+            setTimeout(addWord, 200);
+        };
+
+        micButton.addEventListener('click', simulateVoiceInput);
+    </script>
+
+    <!-- Search Results Drawer -->
+    <div class="search-results-overlay" id="searchResultsOverlay">
+        <div class="drawer-handle"></div>
+        <button class="close-results" onclick="closeSearchResults()">×</button>
+        <div class="search-results-content" id="searchResultsContent">
+            <!-- Content will be loaded dynamically -->
+        </div>
+    </div>
+</body>
+</html>

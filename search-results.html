@@ -1,0 +1,884 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black">
+    <title>Search Results - Terminalix</title>
+    <link rel="stylesheet" href="styles.css">
+    <style>
+        body {
+            background: var(--primary-black);
+            min-height: 100vh;
+            overflow-x: hidden;
+            overflow-y: auto;
+            margin: 0;
+            padding: 0;
+        }
+
+        .results-container {
+            padding-top: 20px;
+            padding-bottom: 180px; /* Space for fixed search box */
+            min-height: 100vh;
+            opacity: 0;
+            transition: opacity 0.8s ease;
+        }
+
+        .results-container.visible {
+            opacity: 1;
+        }
+
+        .results-header {
+            text-align: center;
+            margin-bottom: 40px;
+            padding: 0 20px;
+        }
+
+        .results-query {
+            font-size: 24px;
+            font-weight: 300;
+            margin-bottom: 10px;
+            color: var(--primary-white);
+        }
+
+        .results-count {
+            font-size: 14px;
+            color: #666;
+        }
+
+        .products-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 20px;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+
+        .product-card {
+            opacity: 0;
+            transform: translateY(20px);
+            animation: productFadeIn 0.6s ease forwards;
+            cursor: pointer;
+            transition: transform 0.3s ease;
+        }
+
+        .product-card:hover {
+            transform: scale(1.02);
+        }
+
+        .product-card:nth-child(1) { animation-delay: 0.2s; }
+        .product-card:nth-child(2) { animation-delay: 0.4s; }
+        .product-card:nth-child(3) { animation-delay: 0.6s; }
+        .product-card:nth-child(4) { animation-delay: 0.8s; }
+        .product-card:nth-child(5) { animation-delay: 1.0s; }
+        .product-card:nth-child(6) { animation-delay: 1.2s; }
+
+        @keyframes productFadeIn {
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .product-image-container {
+            width: 100%;
+            height: 400px;
+            border-radius: 16px;
+            overflow: hidden;
+            margin-bottom: 16px;
+            background: linear-gradient(135deg, #1a1a1a 0%, #2a2a2a 100%);
+            border: 1px solid rgba(255, 215, 0, 0.2);
+            position: relative;
+        }
+
+        .add-to-cart-btn {
+            position: absolute;
+            bottom: 12px;
+            right: 12px;
+            width: 48px;
+            height: 48px;
+            border-radius: 50%;
+            background: var(--accent-yellow);
+            border: none;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s ease;
+            opacity: 1;
+            transform: scale(1);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+        }
+
+        .add-to-cart-btn:active {
+            transform: scale(0.95);
+        }
+
+        .add-to-cart-btn svg {
+            width: 24px;
+            height: 24px;
+            fill: var(--primary-black);
+        }
+
+        .product-image {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transition: transform 0.3s ease;
+        }
+
+        .product-card:hover .product-image {
+            transform: scale(1.05);
+        }
+
+        .product-info {
+            text-align: center;
+            padding: 0 10px;
+        }
+
+        .product-title {
+            font-size: 16px;
+            font-weight: 300;
+            color: var(--primary-white);
+            margin-bottom: 8px;
+        }
+
+        .product-price {
+            font-size: 18px;
+            font-weight: 400;
+            color: var(--accent-yellow);
+        }
+
+        .back-button {
+            position: fixed;
+            top: 20px;
+            left: 20px;
+            background: transparent;
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            color: var(--primary-white);
+            padding: 10px 20px;
+            border-radius: 20px;
+            cursor: pointer;
+            font-size: 14px;
+            transition: all 0.3s ease;
+            z-index: 100;
+            opacity: 0;
+            animation: fadeIn 0.8s ease 2s forwards;
+        }
+
+        @keyframes fadeIn {
+            to {
+                opacity: 1;
+            }
+        }
+
+        .back-button:hover {
+            background: rgba(255, 255, 255, 0.1);
+            border-color: var(--accent-yellow);
+        }
+
+        /* Fixed search drawer at bottom */
+        .search-drawer {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: var(--primary-black);
+            padding: 15px 20px 20px;
+            z-index: 999;
+            border-top: 1px solid var(--border-color);
+            backdrop-filter: blur(10px);
+            background: rgba(0, 0, 0, 0.95);
+            transition: opacity 0.5s ease, transform 0.5s ease;
+        }
+
+        .search-drawer.hidden {
+            opacity: 0;
+            transform: translateY(150px);
+        }
+
+        .search-container {
+            max-width: 800px;
+            margin: 0 auto;
+        }
+
+        .search-input-container {
+            display: flex;
+            align-items: center;
+            background: var(--input-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 25px;
+            padding: 0 20px;
+            height: 50px;
+            transition: all 0.3s ease;
+        }
+
+        .search-input-container:focus-within {
+            border-color: var(--accent-yellow);
+            box-shadow: 0 0 0 1px var(--accent-yellow);
+        }
+
+        .search-input {
+            flex: 1;
+            background: none;
+            border: none;
+            outline: none;
+            color: var(--primary-white);
+            font-size: 16px;
+            padding: 10px 0;
+        }
+
+        .search-input::placeholder {
+            color: #666;
+        }
+
+        .mic-button {
+            background: transparent;
+            border: none;
+            color: var(--accent-yellow);
+            cursor: pointer;
+            padding: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s ease;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            margin-right: 8px;
+            position: relative;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        .mic-button:hover {
+            transform: scale(1.1);
+        }
+
+        .mic-button.recording {
+            color: #ff4444;
+            animation: micPulse 1.5s ease-in-out infinite;
+        }
+
+        @keyframes micPulse {
+            0%, 100% {
+                transform: scale(1);
+                opacity: 1;
+            }
+            50% {
+                transform: scale(1.2);
+                opacity: 0.8;
+            }
+        }
+
+        .mic-button.active {
+            transform: scale(0.95);
+        }
+
+        .send-button {
+            background: none;
+            border: none;
+            outline: none;
+            color: var(--accent-yellow);
+            cursor: pointer;
+            padding: 5px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s ease;
+        }
+
+        .send-button:hover {
+            transform: scale(1.1);
+        }
+
+        .send-button:active {
+            transform: scale(0.95);
+        }
+
+        /* Loading state in search area */
+        .loading-drawer {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: var(--primary-black);
+            padding: 20px;
+            z-index: 999;
+            border-top: 1px solid var(--border-color);
+            backdrop-filter: blur(10px);
+            background: rgba(0, 0, 0, 0.95);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            height: 70px;
+            transition: opacity 0.5s ease, transform 0.5s ease;
+        }
+
+        .loading-drawer.hidden {
+            opacity: 0;
+            transform: translateY(100px);
+        }
+
+        .loading-content {
+            text-align: center;
+        }
+
+        .loading-text {
+            font-size: 18px;
+            color: var(--primary-white);
+            margin-bottom: 15px;
+            font-weight: 300;
+            opacity: 0;
+            animation: fadeInUp 0.8s ease forwards;
+        }
+
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .loading-dots {
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+        }
+
+        .loading-dot {
+            width: 8px;
+            height: 8px;
+            background: var(--accent-yellow);
+            border-radius: 50%;
+            opacity: 0;
+            animation: loadingDot 1.4s ease-in-out infinite;
+        }
+
+        .loading-dot:nth-child(1) { animation-delay: 0s; }
+        .loading-dot:nth-child(2) { animation-delay: 0.2s; }
+        .loading-dot:nth-child(3) { animation-delay: 0.4s; }
+
+        @keyframes loadingDot {
+            0%, 60%, 100% {
+                opacity: 0.3;
+                transform: scale(0.8);
+            }
+            30% {
+                opacity: 1;
+                transform: scale(1.2);
+            }
+        }
+
+        /* Keyword suggestions */
+        .suggestions-wrapper-outer {
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.5s ease, margin 0.5s ease;
+            margin-bottom: 0;
+        }
+
+        .suggestions-wrapper-outer.show {
+            max-height: 100px;
+            margin-bottom: 12px;
+        }
+
+        .suggestions-label {
+            font-size: 12px;
+            color: #666;
+            margin-bottom: 8px;
+            font-weight: 300;
+            opacity: 0;
+            transform: translateY(-20px);
+            transition: opacity 0.3s ease, transform 0.3s ease;
+        }
+
+        .suggestions-wrapper-outer.show .suggestions-label {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        .suggestions-container {
+            overflow-x: auto;
+            overflow-y: hidden;
+            -webkit-overflow-scrolling: touch;
+            scrollbar-width: none;
+            -ms-overflow-style: none;
+            opacity: 0;
+            transform: translateY(-20px);
+            transition: opacity 0.3s ease 0.1s, transform 0.3s ease 0.1s;
+            position: relative;
+        }
+
+        .suggestions-wrapper-outer.show .suggestions-container {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        .suggestions-container::-webkit-scrollbar {
+            display: none;
+        }
+
+        /* Scroll hint gradient */
+        .suggestions-container::after {
+            content: '';
+            position: absolute;
+            right: 0;
+            top: 0;
+            bottom: 0;
+            width: 40px;
+            background: linear-gradient(to right, transparent, rgba(0, 0, 0, 0.9));
+            pointer-events: none;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+
+        .suggestions-container.show-scroll-hint::after {
+            opacity: 1;
+        }
+
+        .suggestions-wrapper {
+            display: flex;
+            gap: 10px;
+            padding: 2px 0;
+        }
+
+        .suggestion-pill {
+            flex: 0 0 auto;
+            padding: 8px 18px;
+            background: transparent;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 20px;
+            color: var(--primary-white);
+            font-size: 14px;
+            font-weight: 300;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            white-space: nowrap;
+        }
+
+        .suggestion-pill:hover {
+            border-color: var(--accent-yellow);
+            color: var(--accent-yellow);
+            transform: translateY(-1px);
+        }
+
+        .suggestion-pill:active {
+            transform: translateY(0);
+        }
+
+        @media (max-width: 768px) {
+            .products-grid {
+                gap: 15px;
+            }
+            
+            .product-image-container {
+                height: 300px;
+            }
+
+            .results-container {
+                padding-bottom: 180px;
+            }
+        }
+
+        /* Fix scrolling */
+        html {
+            height: 100%;
+            overflow-y: auto;
+            -webkit-overflow-scrolling: touch;
+        }
+
+        body {
+            height: auto !important;
+            min-height: 100vh;
+            overflow-y: visible !important;
+        }
+    </style>
+</head>
+<body>
+    <button class="back-button" onclick="window.history.back()">← Back to chat</button>
+
+    <div class="results-container" id="resultsContainer">
+        <div class="results-header">
+            <h1 class="results-query" id="searchQueryDisplay">red dress for dinner party</h1>
+            <p class="results-count" id="resultsCount">6 items found</p>
+        </div>
+
+        <div class="products-grid" id="productsGrid">
+            <!-- Products will be loaded here -->
+        </div>
+    </div>
+
+    <!-- Loading state in bottom drawer -->
+    <div class="loading-drawer" id="loadingDrawer">
+        <div class="loading-content">
+            <div class="loading-text">Searching for your perfect style</div>
+            <div class="loading-dots">
+                <div class="loading-dot"></div>
+                <div class="loading-dot"></div>
+                <div class="loading-dot"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Search drawer (hidden during loading) -->
+    <div class="search-drawer hidden" id="searchDrawer">
+        <div class="search-container">
+            <div class="suggestions-wrapper-outer" id="suggestionsOuter">
+                <div class="suggestions-label">Ideas to refine the search</div>
+                <div class="suggestions-container">
+                    <div class="suggestions-wrapper">
+                        <button class="suggestion-pill" onclick="handleSuggestion('maxi dress')">maxi dress</button>
+                        <button class="suggestion-pill" onclick="handleSuggestion('midi dress')">midi dress</button>
+                        <button class="suggestion-pill" onclick="handleSuggestion('mini dress')">mini dress</button>
+                        <button class="suggestion-pill" onclick="handleSuggestion('short sleeve')">short sleeve</button>
+                        <button class="suggestion-pill" onclick="handleSuggestion('long sleeve')">long sleeve</button>
+                        <button class="suggestion-pill" onclick="handleSuggestion('I don\'t care')">I don't care</button>
+                    </div>
+                </div>
+            </div>
+            <div class="search-input-container">
+                <input 
+                    type="text" 
+                    class="search-input" 
+                    id="searchInput" 
+                    placeholder="Refine your search"
+                    value=""
+                >
+                <button class="mic-button" id="micButton">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M12 1C10.34 1 9 2.34 9 4V12C9 13.66 10.34 15 12 15C13.66 15 15 13.66 15 12V4C15 2.34 13.66 1 12 1Z" fill="currentColor"/>
+                        <path d="M17 12C17 14.76 14.76 17 12 17C9.24 17 7 14.76 7 12H5C5 15.53 7.61 18.43 11 18.92V23H13V18.92C16.39 18.43 19 15.53 19 12H17Z" fill="currentColor"/>
+                    </svg>
+                </button>
+                <button class="send-button" id="sendButton">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M2 21L23 12L2 3V10L17 12L2 14V21Z" fill="currentColor"/>
+                    </svg>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Get URL parameters to determine which search results to show
+        const urlParams = new URLSearchParams(window.location.search);
+        const searchQuery = urlParams.get('q') || 'red dress for dinner party';
+        
+        // Update the header based on the search type
+        const updateSearchHeader = () => {
+            const queryDisplay = document.getElementById('searchQueryDisplay');
+            if (searchQuery === 'maxi dress') {
+                queryDisplay.textContent = 'red maxi dress for dinner party';
+            } else if (searchQuery === 'midi dress') {
+                queryDisplay.textContent = 'red midi dress for dinner party';
+            } else if (searchQuery === 'mini dress') {
+                queryDisplay.textContent = 'red mini dress for dinner party';
+            } else if (searchQuery === 'short sleeve') {
+                queryDisplay.textContent = 'red short-sleeve dress for dinner party';
+            } else if (searchQuery === 'long sleeve') {
+                queryDisplay.textContent = 'red long-sleeve dress for dinner party';
+            }
+        };
+        
+        // Define product sets for different searches
+        const productSets = {
+            'red dress for dinner party': [
+                {
+                    image: 'red-dress/r015830017-11742906075_1.jpg',
+                    title: 'Burgundy Halter Fit-and-Flare',
+                    price: '$89.00'
+                },
+                {
+                    image: 'red-dress/r018530013-11749027961.jpg',
+                    title: 'Red Satin Bubble Hem',
+                    price: '$125.00'
+                },
+                {
+                    image: 'red-dress/r186760017-11750751808.jpg',
+                    title: 'Wine One-Shoulder Midi',
+                    price: '$110.00'
+                },
+                {
+                    image: 'red-dress/r194000013-11749651391.jpg',
+                    title: 'Fuchsia Asymmetric Gown',
+                    price: '$195.00'
+                },
+                {
+                    image: 'red-dress/w578910013-11722528067.jpg',
+                    title: 'Red Silk Wrap Dress',
+                    price: '$165.00'
+                },
+                {
+                    image: 'red-dress/w801080017-21743669003.jpg',
+                    title: 'Crimson Ruffle Maxi',
+                    price: '$150.00'
+                }
+            ],
+            'maxi dress': [
+                {
+                    image: 'maxi dresses/w396340013-11718791043.jpg',
+                    title: 'Elegant Red Maxi Gown',
+                    price: '$195.00'
+                },
+                {
+                    image: 'maxi dresses/w626810013-11724746685.jpg',
+                    title: 'Flowing Burgundy Maxi',
+                    price: '$175.00'
+                },
+                {
+                    image: 'maxi dresses/w965060013-11743581198.jpg',
+                    title: 'Formal Red Evening Maxi',
+                    price: '$225.00'
+                },
+                {
+                    image: 'maxi dresses/w968640017-11746450647.jpg',
+                    title: 'Classic Wine Maxi Dress',
+                    price: '$189.00'
+                }
+            ]
+        };
+        
+        // Select the appropriate product set
+        const products = productSets[searchQuery] || productSets['red dress for dinner party'];
+
+        function loadProducts() {
+            const grid = document.getElementById('productsGrid');
+            
+            products.forEach((product) => {
+                const card = document.createElement('div');
+                card.className = 'product-card';
+                card.innerHTML = `
+                    <div class="product-image-container">
+                        <img src="${product.image}" alt="${product.title}" class="product-image">
+                        <button class="add-to-cart-btn" onclick="addToCart('${product.title}', '${product.price}')">
+                            <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                <path d="M17 18C17.5304 18 18.0391 18.2107 18.4142 18.5858C18.7893 18.9609 19 19.4696 19 20C19 20.5304 18.7893 21.0391 18.4142 21.4142C18.0391 21.7893 17.5304 22 17 22C16.4696 22 15.9609 21.7893 15.5858 21.4142C15.2107 21.0391 15 20.5304 15 20C15 19.4696 15.2107 18.9609 15.5858 18.5858C15.9609 18.2107 16.4696 18 17 18ZM1 2H4.27L5.21 4H20C20.2652 4 20.5196 4.10536 20.7071 4.29289C20.8946 4.48043 21 4.73478 21 5C21 5.17 20.95 5.34 20.88 5.5L17.3 11.97C16.96 12.58 16.3 13 15.55 13H8.12L7.2 14.63L7.17 14.75C7.17 14.8163 7.19634 14.8799 7.24322 14.9268C7.29011 14.9737 7.3537 15 7.42 15H19V17H7C6.46957 17 5.96086 16.7893 5.58579 16.4142C5.21071 16.0391 5 15.5304 5 15C5 14.65 5.09 14.32 5.24 14.04L6.6 11.59L3 4H1V2ZM7 18C7.53043 18 8.03914 18.2107 8.41421 18.5858C8.78929 18.9609 9 19.4696 9 20C9 20.5304 8.78929 21.0391 8.41421 21.4142C8.03914 21.7893 7.53043 22 7 22C6.46957 22 5.96086 21.7893 5.58579 21.4142C5.21071 21.0391 5 20.5304 5 20C5 19.4696 5.21071 18.9609 5.58579 18.5858C5.96086 18.2107 6.46957 18 7 18ZM16 11L18.78 6H6.14L8.14 11H16Z"/>
+                            </svg>
+                        </button>
+                    </div>
+                    <div class="product-info">
+                        <h3 class="product-title">${product.title}</h3>
+                        <p class="product-price">${product.price}</p>
+                    </div>
+                `;
+                
+                grid.appendChild(card);
+            });
+        }
+
+        // Update the displayed search query and results count
+        function updateSearchDisplay() {
+            // Update the header for refined searches
+            updateSearchHeader();
+            document.getElementById('resultsCount').textContent = `${products.length} items found`;
+        }
+
+        // Show loading state for 2 seconds, then transition to results
+        setTimeout(() => {
+            // Update the display before showing results
+            updateSearchDisplay();
+            
+            // Hide loading drawer
+            document.getElementById('loadingDrawer').classList.add('hidden');
+            
+            // After transition, show search drawer and results
+            setTimeout(() => {
+                document.getElementById('searchDrawer').classList.remove('hidden');
+                document.getElementById('resultsContainer').classList.add('visible');
+                loadProducts();
+                
+                // Show suggestions after 3 seconds (but not for maxi dress search)
+                if (searchQuery !== 'maxi dress') {
+                    setTimeout(() => {
+                        document.getElementById('suggestionsOuter').classList.add('show');
+                        
+                        // Add scroll hint animation after suggestions appear
+                        setTimeout(() => {
+                            const container = document.querySelector('.suggestions-container');
+                            if (container && container.scrollWidth > container.clientWidth) {
+                                // Show gradient hint
+                                container.classList.add('show-scroll-hint');
+                                
+                                // Animate a subtle scroll to show it's scrollable
+                                container.scrollTo({ left: 80, behavior: 'smooth' });
+                                
+                                setTimeout(() => {
+                                    container.scrollTo({ left: 0, behavior: 'smooth' });
+                                    
+                                    // Remove gradient hint after animation
+                                    setTimeout(() => {
+                                        container.classList.remove('show-scroll-hint');
+                                    }, 500);
+                                }, 800);
+                            }
+                        }, 500);
+                    }, 3000);
+                }
+            }, 300);
+        }, 2000);
+
+        // Search functionality
+        const searchInput = document.getElementById('searchInput');
+        const sendButton = document.getElementById('sendButton');
+
+        const handleSearch = () => {
+            const query = searchInput.value.trim();
+            if (query) {
+                // Reload the page with the new search query
+                window.location.href = `search-results.html?q=${encodeURIComponent(query)}`;
+            }
+        };
+
+        const handleSuggestion = (suggestion) => {
+            // Get the original search query
+            const originalQuery = document.getElementById('searchQueryDisplay').textContent;
+            let combinedQuery = '';
+            
+            // Handle different suggestions
+            if (suggestion === 'I don\'t care') {
+                // Just use the original query for "I don't care"
+                combinedQuery = originalQuery;
+            } else if (suggestion.includes('dress')) {
+                // Replace dress type (maxi, midi, mini)
+                combinedQuery = originalQuery.replace(/dress/, `${suggestion.replace(' dress', '')} dress`);
+            } else if (suggestion.includes('sleeve')) {
+                // Add sleeve specification
+                combinedQuery = originalQuery.replace('dress', `${suggestion.replace(' sleeve', '')}-sleeve dress`);
+            } else {
+                // Default: combine original with suggestion
+                combinedQuery = originalQuery.replace('dress', `${suggestion} dress`);
+            }
+            
+            // Clear the input first
+            searchInput.value = '';
+            searchInput.focus();
+            
+            // Type the combined query word by word with animation
+            const words = combinedQuery.split(' ');
+            let currentWordIndex = 0;
+            
+            const typeWord = () => {
+                if (currentWordIndex < words.length) {
+                    if (currentWordIndex > 0) {
+                        searchInput.value += ' ';
+                    }
+                    searchInput.value += words[currentWordIndex];
+                    currentWordIndex++;
+                    setTimeout(typeWord, 150); // 150ms between words
+                } else {
+                    // After typing is complete, don't trigger search automatically
+                    // User needs to click send button
+                }
+            };
+            
+            // Start typing after a brief pause
+            setTimeout(typeWord, 200);
+        };
+
+        // Make handleSuggestion available globally
+        window.handleSuggestion = handleSuggestion;
+
+        // Add to cart functionality
+        const addToCart = (productTitle, productPrice) => {
+            console.log(`Added to cart: ${productTitle} - ${productPrice}`);
+            
+            // You can add more functionality here like:
+            // - Show a toast notification
+            // - Update cart count
+            // - Save to localStorage
+            // - Send to backend API
+            
+            // For now, just a simple animation feedback
+            event.target.closest('.add-to-cart-btn').style.background = '#4CAF50';
+            setTimeout(() => {
+                event.target.closest('.add-to-cart-btn').style.background = 'var(--accent-yellow)';
+            }, 300);
+        };
+
+        // Make addToCart available globally
+        window.addToCart = addToCart;
+
+        sendButton.addEventListener('click', handleSearch);
+        searchInput.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') {
+                e.preventDefault();
+                handleSearch();
+            }
+        });
+
+        // Focus animation
+        searchInput.addEventListener('focus', () => {
+            const container = searchInput.parentElement;
+            container.style.animation = 'pulse 2s infinite';
+        });
+
+        searchInput.addEventListener('blur', () => {
+            const container = searchInput.parentElement;
+            container.style.animation = '';
+        });
+
+        // Add subtle floating particles effect like on home page
+        let particles = [];
+        const createParticle = () => {
+            const particle = document.createElement('div');
+            particle.style.position = 'fixed';
+            particle.style.width = '1px';
+            particle.style.height = '1px';
+            particle.style.background = 'var(--accent-yellow)';
+            particle.style.pointerEvents = 'none';
+            particle.style.opacity = Math.random() * 0.5;
+            particle.style.left = Math.random() * window.innerWidth + 'px';
+            particle.style.top = '-10px';
+            particle.style.zIndex = '1';
+            document.body.appendChild(particle);
+            
+            const speed = 1 + Math.random() * 2;
+            const angle = Math.random() * 0.2 - 0.1;
+            
+            const animate = () => {
+                const top = parseFloat(particle.style.top);
+                const left = parseFloat(particle.style.left);
+                
+                if (top > window.innerHeight) {
+                    particle.remove();
+                    particles = particles.filter(p => p !== particle);
+                } else {
+                    particle.style.top = (top + speed) + 'px';
+                    particle.style.left = (left + angle) + 'px';
+                    particle.style.opacity = parseFloat(particle.style.opacity) * 0.99;
+                    requestAnimationFrame(animate);
+                }
+            };
+            
+            requestAnimationFrame(animate);
+            particles.push(particle);
+        };
+
+        setInterval(() => {
+            if (particles.length < 10 && Math.random() > 0.8) {
+                createParticle();
+            }
+        }, 200);
+
+        // Pulse animation
+        const style = document.createElement('style');
+        style.textContent = `
+            @keyframes pulse {
+                0%, 100% {
+                    box-shadow: 0 0 0 0 rgba(255, 215, 0, 0.4);
+                }
+                50% {
+                    box-shadow: 0 0 0 10px rgba(255, 215, 0, 0);
+                }
+            }
+        `;
+        document.head.appendChild(style);
+    </script>
+</body>
+</html>
