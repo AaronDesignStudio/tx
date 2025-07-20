@@ -203,13 +203,41 @@
             left: 0;
             right: 0;
             background: var(--primary-black);
-            padding: 15px 20px 20px;
             border-top: 1px solid var(--border-color);
             backdrop-filter: blur(10px);
             background: rgba(0, 0, 0, 0.95);
             z-index: 100; /* Above the drawer */
         }
+        
+        .chat-input-area .tags-container {
+            padding: 10px 20px 8px;
+            border-bottom: none;
+            background: transparent;
+        }
+        
+        .chat-input-area .tags-title {
+            max-width: 800px;
+            margin: 0 auto 6px;
+            font-size: 13px;
+            opacity: 0.8;
+        }
+        
+        .chat-input-area .tags-scroll-wrapper {
+            max-width: 800px;
+            margin: 0 auto;
+            gap: 8px;
+        }
+        
+        .chat-input-area .tag-pill {
+            padding: 6px 14px;
+            font-size: 12px;
+            border-radius: 20px;
+        }
 
+        .chat-input-wrapper {
+            padding: 0 20px 15px;
+        }
+        
         .chat-input-container {
             max-width: 800px;
             margin: 0 auto;
@@ -220,12 +248,10 @@
             border-radius: 25px;
             padding: 0 20px;
             height: 50px;
-            transition: all 0.3s ease;
         }
 
         .chat-input-container:focus-within {
-            border-color: var(--accent-yellow);
-            box-shadow: 0 0 0 1px var(--accent-yellow);
+            border-color: var(--border-color);
         }
 
         .chat-input {
@@ -276,6 +302,13 @@
                 opacity: 1;
             }
         }
+        
+        @keyframes productFadeIn {
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
 
         /* Responsive */
         @media (max-width: 768px) {
@@ -298,6 +331,7 @@
             border-top-left-radius: 20px;
             border-top-right-radius: 20px;
             box-shadow: 0 -10px 30px rgba(0, 0, 0, 0.5);
+            max-height: 85vh; /* Prevent it from going too high */
         }
 
         .search-results-overlay.active {
@@ -341,9 +375,503 @@
             background: rgba(255, 255, 255, 0.1);
             border-color: var(--accent-yellow);
         }
+        
+        /* Complete the Look styles */
+        .complete-look-container {
+            margin-top: 12px;
+        }
+        
+        .complete-look-text {
+            margin-bottom: 12px;
+            font-size: 16px;
+            line-height: 1.4;
+        }
+        
+        .complete-look-preview {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 12px;
+        }
+        
+        .look-preview-item {
+            width: 80px;
+            height: 80px;
+            border-radius: 12px;
+            object-fit: cover;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .look-preview-item:hover {
+            transform: scale(1.05);
+            border-color: var(--accent-yellow);
+        }
+        
+        /* Looks Drawer styles */
+        .looks-drawer-overlay {
+            position: fixed;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: var(--primary-black);
+            transform: translateY(100%);
+            transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            z-index: 90;
+            overflow: hidden;
+            border-top: 1px solid var(--border-color);
+            border-top-left-radius: 20px;
+            border-top-right-radius: 20px;
+            box-shadow: 0 -10px 30px rgba(0, 0, 0, 0.5);
+        }
+        
+        .looks-drawer-overlay.active {
+            transform: translateY(0);
+        }
+        
+        .looks-drawer-content {
+            height: 100%;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .looks-container {
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            overflow-x: hidden; /* Prevent horizontal scroll */
+            width: 100%;
+            box-sizing: border-box;
+        }
+        
+        .looks-categories-sticky {
+            position: sticky;
+            top: 0;
+            background: var(--primary-black);
+            padding: 20px 0;
+            border-bottom: 1px solid var(--border-color);
+            z-index: 10;
+        }
+        
+        .looks-categories {
+            display: flex;
+            gap: 12px;
+            justify-content: center;
+            padding: 0 20px;
+        }
+        
+        .looks-category {
+            flex: 1;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            opacity: 0.6;
+            max-width: 100px;
+        }
+        
+        .looks-category-image {
+            position: relative;
+            border-radius: 12px;
+            overflow: hidden;
+            border: 2px solid transparent;
+            aspect-ratio: 1 / 1;
+            transition: all 0.3s ease;
+        }
+        
+        .looks-category-count {
+            position: absolute;
+            top: 8px;
+            right: 8px;
+            background: var(--accent-yellow);
+            color: var(--primary-black);
+            font-size: 12px;
+            font-weight: 600;
+            padding: 4px 8px;
+            border-radius: 12px;
+            min-width: 24px;
+            text-align: center;
+            z-index: 2;
+            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.3);
+            transition: all 0.3s ease;
+        }
+        
+        .looks-category-label {
+            margin-top: 8px;
+            font-size: 12px;
+            font-weight: 400;
+            color: var(--primary-white);
+            text-align: center;
+            text-transform: capitalize;
+            transition: all 0.3s ease;
+        }
+        
+        .looks-category.active {
+            opacity: 1;
+        }
+        
+        .looks-category.active .looks-category-image {
+            border-color: var(--accent-yellow);
+            transform: scale(1.05);
+        }
+        
+        .looks-category.active .looks-category-count {
+            background: var(--primary-black);
+            color: var(--accent-yellow);
+            border: 1px solid var(--accent-yellow);
+        }
+        
+        .looks-category.active .looks-category-label {
+            color: var(--accent-yellow);
+            font-weight: 500;
+        }
+        
+        .looks-category:hover {
+            opacity: 0.9;
+        }
+        
+        .looks-category:hover .looks-category-image {
+            transform: scale(1.02);
+        }
+        
+        .looks-category-image img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            display: block;
+        }
+        
+        .looks-products-scrollable {
+            flex: 1;
+            overflow-y: auto;
+            overflow-x: hidden;
+            padding: 20px 20px 100px 20px;
+            -webkit-overflow-scrolling: touch;
+            box-sizing: border-box;
+            width: 100%;
+        }
+        
+        /* Override product styles for looks drawer */
+        .looks-container .products-grid {
+            display: grid;
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+            gap: 15px;
+            width: 100%;
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+        
+        .looks-container .product-card {
+            opacity: 0;
+            transform: translateY(20px);
+            animation: productFadeIn 0.6s ease forwards;
+            width: 100%;
+            box-sizing: border-box;
+        }
+        
+        .looks-container .product-image-container {
+            width: 100%;
+            max-width: 100%;
+            aspect-ratio: 1 / 1.25; /* Maintain consistent aspect ratio */
+            border-radius: 12px;
+            overflow: hidden;
+            margin-bottom: 12px;
+            background: linear-gradient(135deg, #1a1a1a 0%, #2a2a2a 100%);
+            border: 1px solid rgba(255, 215, 0, 0.2);
+            position: relative;
+            box-sizing: border-box;
+        }
+        
+        .looks-container .product-image {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+        
+        .looks-container .product-info {
+            padding: 0 8px;
+        }
+        
+        .looks-container .product-title {
+            font-size: 14px;
+            font-weight: 300;
+            color: var(--primary-white);
+            margin-bottom: 4px;
+        }
+        
+        .looks-container .product-price {
+            font-size: 16px;
+            font-weight: 400;
+            color: var(--accent-yellow);
+        }
+        
+        .looks-container .add-to-cart-btn {
+            position: absolute;
+            bottom: 12px;
+            right: 12px;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: var(--accent-yellow);
+            border: none;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+        }
+        
+        .looks-container .add-to-cart-btn:hover {
+            transform: scale(1.1);
+            box-shadow: 0 6px 16px rgba(0, 0, 0, 0.4);
+        }
+        
+        .looks-container .add-to-cart-btn:active {
+            transform: scale(0.95);
+        }
+        
+        .looks-container .add-to-cart-btn svg {
+            width: 20px;
+            height: 20px;
+        }
+        
+        /* Tag pills styles */
+        .tags-container {
+            padding: 20px 20px 15px;
+            overflow: hidden;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        
+        .tags-title {
+            font-size: 16px;
+            color: var(--primary-white);
+            font-weight: 300;
+            margin-bottom: 12px;
+        }
+        
+        .tags-scroll-wrapper {
+            display: flex;
+            gap: 10px;
+            overflow-x: auto;
+            padding-bottom: 8px;
+            -webkit-overflow-scrolling: touch;
+            scrollbar-width: none;
+            -ms-overflow-style: none;
+        }
+        
+        .tags-scroll-wrapper::-webkit-scrollbar {
+            display: none;
+        }
+        
+        .tag-pill {
+            flex-shrink: 0;
+            padding: 10px 20px;
+            background: transparent;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 25px;
+            color: var(--primary-white);
+            font-size: 14px;
+            font-weight: 300;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            white-space: nowrap;
+            text-decoration: none;
+            display: inline-block;
+        }
+        
+        .tag-pill:hover {
+            background: rgba(255, 255, 255, 0.1);
+            border-color: var(--accent-yellow);
+            color: var(--accent-yellow);
+            transform: translateY(-2px);
+        }
+        
+        .tag-pill:active {
+            transform: translateY(0);
+        }
+        
+        .tag-pill.active {
+            background: var(--accent-yellow);
+            color: var(--primary-black);
+            border-color: var(--accent-yellow);
+            font-weight: 500;
+        }
+        
+        @media (max-width: 768px) {
+            .complete-look-preview {
+                gap: 6px;
+            }
+            
+            .look-preview-item {
+                width: 70px;
+                height: 70px;
+            }
+            
+            .looks-categories {
+                max-width: 300px;
+            }
+            
+            .looks-container .product-image-container {
+                aspect-ratio: 1 / 1.2; /* Slightly less tall on mobile */
+            }
+            
+            .looks-categories {
+                padding: 0 15px;
+            }
+            
+            .looks-category {
+                max-width: 80px;
+            }
+            
+            .looks-products-scrollable {
+                padding: 15px;
+                padding-bottom: 100px;
+            }
+            
+            .looks-container .products-grid {
+                gap: 12px;
+            }
+        }
+        /* Notification styles */
+        .notification-container {
+            position: fixed;
+            top: -200px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 90%;
+            max-width: 400px;
+            background: linear-gradient(135deg, #1a1a1a 0%, #2a2a2a 100%);
+            border: 1px solid rgba(255, 215, 0, 0.3);
+            border-radius: 16px;
+            padding: 16px;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.8), 0 0 20px rgba(255, 215, 0, 0.2);
+            z-index: 1000;
+            transition: all 0.5s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+            opacity: 0;
+        }
+
+        .notification-container.show {
+            top: 20px;
+            opacity: 1;
+        }
+
+        .notification-content {
+            display: flex;
+            gap: 12px;
+            align-items: center;
+        }
+
+        .notification-image {
+            width: 60px;
+            height: 60px;
+            border-radius: 12px;
+            overflow: hidden;
+            flex-shrink: 0;
+            border: 1px solid rgba(255, 215, 0, 0.2);
+        }
+
+        .notification-image img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .notification-text {
+            flex: 1;
+        }
+
+        .notification-title {
+            font-size: 14px;
+            font-weight: 500;
+            color: var(--accent-yellow);
+            margin-bottom: 4px;
+        }
+
+        .notification-message {
+            font-size: 13px;
+            color: #ccc;
+            line-height: 1.4;
+        }
+
+        .notification-actions {
+            display: flex;
+            gap: 8px;
+            margin-top: 12px;
+        }
+
+        .notification-btn {
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            border: none;
+        }
+
+        .notification-btn-primary {
+            background: var(--accent-yellow);
+            color: var(--primary-black);
+        }
+
+        .notification-btn-primary:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(255, 215, 0, 0.3);
+        }
+
+        .notification-btn-secondary {
+            background: transparent;
+            color: #999;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .notification-btn-secondary:hover {
+            background: rgba(255, 255, 255, 0.05);
+            border-color: rgba(255, 255, 255, 0.3);
+        }
+
+        @keyframes notificationSlideIn {
+            0% {
+                transform: translateX(-50%) translateY(-20px);
+                opacity: 0;
+            }
+            100% {
+                transform: translateX(-50%) translateY(0);
+                opacity: 1;
+            }
+        }
+
+        @keyframes notificationSlideOut {
+            0% {
+                transform: translateX(-50%) translateY(0);
+                opacity: 1;
+            }
+            100% {
+                transform: translateX(-50%) translateY(-20px);
+                opacity: 0;
+            }
+        }
     </style>
 </head>
 <body>
+    <!-- Notification -->
+    <div class="notification-container" id="notificationContainer">
+        <div class="notification-content">
+            <div class="notification-image">
+                <img src="Looks/ring2.jpg" alt="Rose Gold Signet Ring">
+            </div>
+            <div class="notification-text">
+                <div class="notification-title">Perfect Match Found!</div>
+                <div class="notification-message">This rose gold signet ring would look stunning with the red dress you bought two weeks ago</div>
+            </div>
+        </div>
+        <div class="notification-actions">
+            <button class="notification-btn notification-btn-primary" onclick="viewNotificationProduct()">View</button>
+            <button class="notification-btn notification-btn-secondary" onclick="dismissNotification()">Later</button>
+        </div>
+    </div>
+
     <div class="chat-header">
         <div class="chat-header-content">
             <div class="logo-ai-container">
@@ -371,24 +899,37 @@
     </div>
 
     <div class="chat-input-area">
-        <div class="chat-input-container">
-            <input 
-                type="text" 
-                class="chat-input" 
-                id="chatInput" 
-                placeholder="Ask for anything..."
-            >
-            <button class="mic-button" id="micButton">
-                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                    <path d="M12 1C10.34 1 9 2.34 9 4V12C9 13.66 10.34 15 12 15C13.66 15 15 13.66 15 12V4C15 2.34 13.66 1 12 1Z" fill="currentColor"/>
-                    <path d="M17 12C17 14.76 14.76 17 12 17C9.24 17 7 14.76 7 12H5C5 15.53 7.61 18.43 11 18.92V23H13V18.92C16.39 18.43 19 15.53 19 12H17Z" fill="currentColor"/>
-                </svg>
-            </button>
-            <button class="send-button" id="sendButton">
-                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                    <path d="M2 21L23 12L2 3V10L17 12L2 14V21Z" fill="currentColor"/>
-                </svg>
-            </button>
+        <div class="tags-container" id="focusSearchTags" style="display: none;">
+            <div class="tags-title">Let's focus your search</div>
+            <div class="tags-scroll-wrapper">
+                <a href="#" class="tag-pill" onclick="handleTagClick(event, 'Evening')">Evening</a>
+                <a href="#" class="tag-pill" onclick="handleTagClick(event, 'Cocktail')">Cocktail</a>
+                <a href="#" class="tag-pill" onclick="handleTagClick(event, 'Under $100')">Under $100</a>
+                <a href="#" class="tag-pill" onclick="handleTagClick(event, 'Designer')">Designer</a>
+                <a href="#" class="tag-pill" onclick="handleTagClick(event, 'Silk')">Silk</a>
+                <a href="#" class="tag-pill" onclick="handleTagClick(event, 'Trending')">Trending</a>
+            </div>
+        </div>
+        <div class="chat-input-wrapper">
+            <div class="chat-input-container">
+                <input 
+                    type="text" 
+                    class="chat-input" 
+                    id="chatInput" 
+                    placeholder="Ask for anything..."
+                >
+                <button class="mic-button" id="micButton">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M12 1C10.34 1 9 2.34 9 4V12C9 13.66 10.34 15 12 15C13.66 15 15 13.66 15 12V4C15 2.34 13.66 1 12 1Z" fill="currentColor"/>
+                        <path d="M17 12C17 14.76 14.76 17 12 17C9.24 17 7 14.76 7 12H5C5 15.53 7.61 18.43 11 18.92V23H13V18.92C16.39 18.43 19 15.53 19 12H17Z" fill="currentColor"/>
+                    </svg>
+                </button>
+                <button class="send-button" id="sendButton">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M2 21L23 12L2 3V10L17 12L2 14V21Z" fill="currentColor"/>
+                    </svg>
+                </button>
+            </div>
         </div>
     </div>
 
@@ -408,6 +949,9 @@
                 { image: 'red-dress/w801080017-21743669003.jpg', title: 'Crimson Ruffle', price: '$150' }
             ]
         };
+        
+        // Store filtered products
+        let currentFilteredProducts = [];
 
         const chatContainer = document.getElementById('chatMessagesContainer');
         const chatInput = document.getElementById('chatInput');
@@ -423,6 +967,55 @@
             `;
             chatContainer.appendChild(messageDiv);
             scrollToBottom();
+        }
+
+        // Add filtered assistant message
+        function addFilteredAssistantMessage(productList, tagName) {
+            // First show typing indicator
+            const typingDiv = document.createElement('div');
+            typingDiv.className = 'message-bubble assistant-message';
+            typingDiv.id = 'typingIndicator';
+            typingDiv.innerHTML = `
+                <div class="message-content">
+                    <div class="typing-indicator">
+                        <div class="typing-dot"></div>
+                        <div class="typing-dot"></div>
+                        <div class="typing-dot"></div>
+                    </div>
+                </div>
+            `;
+            chatContainer.appendChild(typingDiv);
+            scrollToBottom();
+
+            // Replace with actual message after delay
+            setTimeout(() => {
+                typingDiv.remove();
+                
+                const messageDiv = document.createElement('div');
+                messageDiv.className = 'message-bubble assistant-message';
+                messageDiv.style.animationDelay = '0.1s';
+                
+                const previewProducts = productList.slice(0, 3);
+                
+                messageDiv.innerHTML = `
+                    <div class="message-content">
+                        <div class="product-preview-container">
+                            <div class="product-preview-text">I found ${productList.length} perfect ${tagName.toLowerCase()} options!</div>
+                            <div class="product-preview-grid">
+                                ${previewProducts.map(product => `
+                                    <div class="product-preview-item" onclick="openProductPage('${product.title}', '${product.price}', '${product.image}', 'dress')">
+                                        <img src="${product.image}" alt="${product.title}">
+                                    </div>
+                                `).join('')}
+                            </div>
+                            <button class="view-all-button" onclick="viewFilteredProducts('${tagName}')">View ${productList.length} products</button>
+                        </div>
+                    </div>
+                `;
+                
+                chatContainer.appendChild(messageDiv);
+                scrollToBottom();
+            }, 2000);
         }
 
         // Add assistant message with product preview
@@ -459,7 +1052,7 @@
                             <div class="product-preview-text">I found ${productList.length} perfect options for your search!</div>
                             <div class="product-preview-grid">
                                 ${previewProducts.map(product => `
-                                    <div class="product-preview-item" onclick="viewAllProducts()">
+                                    <div class="product-preview-item" onclick="openProductPage('${product.title}', '${product.price}', '${product.image}', 'dress')">
                                         <img src="${product.image}" alt="${product.title}">
                                     </div>
                                 `).join('')}
@@ -471,6 +1064,28 @@
                 
                 chatContainer.appendChild(messageDiv);
                 scrollToBottom();
+                
+                // Add "Complete the Look" bubble after a short delay
+                setTimeout(() => {
+                        const looksDiv = document.createElement('div');
+                        looksDiv.className = 'message-bubble assistant-message';
+                        looksDiv.style.animationDelay = '0.3s';
+                        looksDiv.innerHTML = `
+                            <div class="message-content">
+                                <div class="complete-look-container">
+                                    <div class="complete-look-text">I found a few more ideas that will complete that look</div>
+                                    <div class="complete-look-preview">
+                                        <img src="Looks/ringMain.jpg" alt="Ring" class="look-preview-item" onclick="openProductPage('Stellar Open Ring', '$189', 'Looks/ringMain.jpg', 'accessories')">
+                                        <img src="Looks/necklaceMain.jpg" alt="Necklace" class="look-preview-item" onclick="openProductPage('Golden Key Pendant', '$229', 'Looks/necklaceMain.jpg', 'accessories')">
+                                        <img src="Looks/shoesMain.jpg" alt="Shoes" class="look-preview-item" onclick="openProductPage('Crystal Buckle Pumps', '$349', 'Looks/shoesMain.jpg', 'shoes')">
+                                    </div>
+                                    <button class="view-all-button" onclick="viewLooks()">View Looks</button>
+                                </div>
+                            </div>
+                        `;
+                        chatContainer.appendChild(looksDiv);
+                        scrollToBottom();
+                    }, 500);
             }, 2000);
         }
 
@@ -502,14 +1117,12 @@
                     </div>
                     <div class="products-grid">
                         ${productList.map((product, index) => `
-                            <div class="product-card" style="animation-delay: ${0.1 * index}s">
+                            <div class="product-card" style="animation-delay: ${0.1 * index}s" onclick="openProductPage('${product.title}', '${product.price}', '${product.image}', 'dress')">
                                 <div class="product-image-container">
                                     <img src="${product.image}" alt="${product.title}" class="product-image">
-                                    <button class="add-to-cart-btn">
-                                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                            <path d="M7 22C5.89543 22 5 21.1046 5 20C5 18.8954 5.89543 18 7 18C8.10457 18 9 18.8954 9 20C9 21.1046 8.10457 22 7 22Z" stroke="white" stroke-width="2"/>
-                                            <path d="M17 22C15.8954 22 15 21.1046 15 20C15 18.8954 15.8954 18 17 18C18.1046 18 19 18.8954 19 20C19 21.1046 18.1046 22 17 22Z" stroke="white" stroke-width="2"/>
-                                            <path d="M1 1H5L7.68 14.39C7.77144 14.8504 8.02191 15.264 8.38755 15.5583C8.75318 15.8526 9.2107 16.009 9.68 16H16.4C16.8693 16.009 17.3268 15.8526 17.6925 15.5583C18.0581 15.264 18.3086 14.8504 18.4 14.39L20 6H6" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                                    <button class="add-to-cart-btn" onclick="event.stopPropagation()">
+                                        <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                            <path d="M17 18C17.5304 18 18.0391 18.2107 18.4142 18.5858C18.7893 18.9609 19 19.4696 19 20C19 20.5304 18.7893 21.0391 18.4142 21.4142C18.0391 21.7893 17.5304 22 17 22C16.4696 22 15.9609 21.7893 15.5858 21.4142C15.2107 21.0391 15 20.5304 15 20C15 19.4696 15.2107 18.9609 15.5858 18.5858C15.9609 18.2107 16.4696 18 17 18ZM1 2H4.27L5.21 4H20C20.2652 4 20.5196 4.10536 20.7071 4.29289C20.8946 4.48043 21 4.73478 21 5C21 5.17 20.95 5.34 20.88 5.5L17.3 11.97C16.96 12.58 16.3 13 15.55 13H8.12L7.2 14.63L7.17 14.75C7.17 14.8163 7.19634 14.8799 7.24322 14.9268C7.29011 14.9737 7.3537 15 7.42 15H19V17H7C6.46957 17 5.96086 16.7893 5.58579 16.4142C5.21071 16.0391 5 15.5304 5 15C5 14.65 5.09 14.32 5.24 14.04L6.6 11.59L3 4H1V2ZM7 18C7.53043 18 8.03914 18.2107 8.41421 18.5858C8.78929 18.9609 9 19.4696 9 20C9 20.5304 8.78929 21.0391 8.41421 21.4142C8.03914 21.7893 7.53043 22 7 22C6.46957 22 5.96086 21.7893 5.58579 21.4142C5.21071 21.0391 5 20.5304 5 20C5 19.4696 5.21071 18.9609 5.58579 18.5858C5.96086 18.2107 6.46957 18 7 18ZM16 11L18.78 6H6.14L8.14 11H16Z" fill="black"/>
                                         </svg>
                                     </button>
                                 </div>
@@ -534,6 +1147,8 @@
             // Show the overlay with animation
             setTimeout(() => {
                 overlay.classList.add('active');
+                // Show the focus search tags
+                document.getElementById('focusSearchTags').style.display = 'block';
             }, 50);
         }
         
@@ -541,6 +1156,8 @@
         function closeSearchResults() {
             const overlay = document.getElementById('searchResultsOverlay');
             overlay.classList.remove('active');
+            // Hide the focus search tags
+            document.getElementById('focusSearchTags').style.display = 'none';
         }
         
         // Add search results specific styles
@@ -550,7 +1167,7 @@
                 styleSheet.id = 'searchResultsStyles';
                 styleSheet.textContent = `
                     .results-container {
-                        padding-top: 0;
+                        padding-top: 20px;
                         padding-bottom: 20px;
                     }
                     
@@ -610,27 +1227,31 @@
                         position: absolute;
                         bottom: 12px;
                         right: 12px;
-                        width: 48px;
-                        height: 48px;
+                        width: 40px;
+                        height: 40px;
                         border-radius: 50%;
-                        background: rgba(0, 0, 0, 0.8);
-                        border: 1px solid rgba(255, 255, 255, 0.2);
+                        background: var(--accent-yellow);
+                        border: none;
                         display: flex;
                         align-items: center;
                         justify-content: center;
                         cursor: pointer;
                         transition: all 0.3s ease;
-                        opacity: 0;
-                    }
-                    
-                    .product-card:hover .add-to-cart-btn {
-                        opacity: 1;
+                        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
                     }
                     
                     .add-to-cart-btn:hover {
-                        background: var(--accent-yellow);
-                        border-color: var(--accent-yellow);
                         transform: scale(1.1);
+                        box-shadow: 0 6px 16px rgba(0, 0, 0, 0.4);
+                    }
+                    
+                    .add-to-cart-btn:active {
+                        transform: scale(0.95);
+                    }
+                    
+                    .add-to-cart-btn svg {
+                        width: 20px;
+                        height: 20px;
                     }
                     
                     .product-image {
@@ -707,6 +1328,71 @@
             addAssistantMessage(productList);
         }
 
+        // Click counter for notification
+        let clickCount = 0;
+        let notificationShown = false;
+
+        // Function to handle clicks/taps
+        function handleInteraction(e) {
+            // Don't count clicks on interactive elements
+            if (e.target.tagName === 'BUTTON' || 
+                e.target.tagName === 'INPUT' || 
+                e.target.tagName === 'A' ||
+                e.target.closest('button') ||
+                e.target.closest('.product-card') ||
+                e.target.closest('.notification-container')) {
+                return;
+            }
+
+            clickCount++;
+            console.log('Click count:', clickCount); // Debug log
+            
+            if (clickCount >= 5 && !notificationShown) {
+                showNotification();
+                notificationShown = true;
+            }
+        }
+
+        // Listen for both click and touch events
+        document.addEventListener('click', handleInteraction);
+        document.addEventListener('touchstart', function(e) {
+            // Prevent double-firing on touch devices
+            if (e.touches.length === 1) {
+                handleInteraction(e);
+            }
+        });
+
+        // Show notification
+        function showNotification() {
+            const notification = document.getElementById('notificationContainer');
+            notification.classList.add('show');
+            
+            // Auto dismiss after 30 seconds
+            setTimeout(() => {
+                if (notification.classList.contains('show')) {
+                    dismissNotification();
+                }
+            }, 30000);
+        }
+
+        // Dismiss notification
+        function dismissNotification() {
+            const notification = document.getElementById('notificationContainer');
+            notification.classList.remove('show');
+            
+            // Reset after animation
+            setTimeout(() => {
+                clickCount = 0;
+                notificationShown = false;
+            }, 500);
+        }
+
+        // View product from notification
+        function viewNotificationProduct() {
+            dismissNotification();
+            openProductPage('Rose Gold Signet Ring', '$159', 'Looks/ring2.jpg', 'accessories');
+        }
+
         // Event listeners
         sendButton.addEventListener('click', handleSend);
         chatInput.addEventListener('keypress', (e) => {
@@ -753,6 +1439,268 @@
         };
 
         micButton.addEventListener('click', simulateVoiceInput);
+        
+        // Navigate to looks drawer
+        function viewLooks() {
+            const overlay = document.getElementById('looksDrawerOverlay');
+            const content = document.getElementById('looksDrawerContent');
+            
+            // Get the last user message bubble position
+            const userMessages = document.querySelectorAll('.user-message');
+            const lastUserMessage = userMessages[userMessages.length - 1];
+            const messageRect = lastUserMessage.getBoundingClientRect();
+            const messageBottom = messageRect.bottom;
+            
+            // Calculate drawer height
+            const drawerHeight = window.innerHeight - messageBottom - 20;
+            
+            // Set the drawer height
+            overlay.style.height = `${drawerHeight}px`;
+            
+            // Initialize with ring selected
+            updateLooksContent('ring');
+            
+            // Show the overlay with animation
+            setTimeout(() => {
+                overlay.classList.add('active');
+            }, 50);
+        }
+        
+        // Update looks content based on selected category
+        function updateLooksContent(category) {
+            const content = document.getElementById('looksDrawerContent');
+            
+            // Product data for each category using actual photos
+            const looksProducts = {
+                ring: [
+                    { image: 'Looks/ringMain.jpg', title: 'Stellar Open Ring', price: '$189' },
+                    { image: 'Looks/ring1.jpg', title: 'Diamond Eternity Band', price: '$299' },
+                    { image: 'Looks/ring2.jpg', title: 'Rose Gold Signet Ring', price: '$159' },
+                    { image: 'Looks/ring3.jpg', title: 'Vintage Pearl Ring', price: '$249' }
+                ],
+                necklace: [
+                    { image: 'Looks/necklaceMain.jpg', title: 'Golden Key Pendant', price: '$229' },
+                    { image: 'Looks/necklace1.jpg', title: 'Layered Chain Necklace', price: '$189' },
+                    { image: 'Looks/necklace2.jpg', title: 'Crystal Drop Necklace', price: '$269' },
+                    { image: 'Looks/necklace3.jpg', title: 'Minimalist Bar Necklace', price: '$149' }
+                ],
+                shoes: [
+                    { image: 'Looks/shoesMain.jpg', title: 'Crystal Buckle Pumps', price: '$349' },
+                    { image: 'Looks/shoes1.jpg', title: 'Strappy Stiletto Heels', price: '$289' },
+                    { image: 'Looks/shoes2.jpg', title: 'Velvet Evening Pumps', price: '$319' },
+                    { image: 'Looks/shoes3.jpg', title: 'Satin Bow Heels', price: '$279' }
+                ]
+            };
+            
+            const products = looksProducts[category] || [];
+            
+            content.innerHTML = `
+                <div class="looks-container">
+                    <div class="looks-categories-sticky">
+                        <div class="looks-categories">
+                            <div class="looks-category ${category === 'ring' ? 'active' : ''}" onclick="updateLooksContent('ring')">
+                                <div class="looks-category-image">
+                                    <img src="Looks/ringMain.jpg" alt="Ring">
+                                    <span class="looks-category-count">${looksProducts['ring'].length}</span>
+                                </div>
+                                <div class="looks-category-label">Rings</div>
+                            </div>
+                            <div class="looks-category ${category === 'necklace' ? 'active' : ''}" onclick="updateLooksContent('necklace')">
+                                <div class="looks-category-image">
+                                    <img src="Looks/necklaceMain.jpg" alt="Necklace">
+                                    <span class="looks-category-count">${looksProducts['necklace'].length}</span>
+                                </div>
+                                <div class="looks-category-label">Necklaces</div>
+                            </div>
+                            <div class="looks-category ${category === 'shoes' ? 'active' : ''}" onclick="updateLooksContent('shoes')">
+                                <div class="looks-category-image">
+                                    <img src="Looks/shoesMain.jpg" alt="Shoes">
+                                    <span class="looks-category-count">${looksProducts['shoes'].length}</span>
+                                </div>
+                                <div class="looks-category-label">Shoes</div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="looks-products-scrollable">
+                        <div class="products-grid">
+                            ${products.map((product, index) => `
+                                <div class="product-card" style="animation-delay: ${0.1 * index}s" onclick="openProductPage('${product.title}', '${product.price}', '${product.image}', '${category}')">
+                                    <div class="product-image-container">
+                                        <img src="${product.image}" alt="${product.title}" class="product-image">
+                                        <button class="add-to-cart-btn" onclick="event.stopPropagation()">
+                                            <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                                <path d="M17 18C17.5304 18 18.0391 18.2107 18.4142 18.5858C18.7893 18.9609 19 19.4696 19 20C19 20.5304 18.7893 21.0391 18.4142 21.4142C18.0391 21.7893 17.5304 22 17 22C16.4696 22 15.9609 21.7893 15.5858 21.4142C15.2107 21.0391 15 20.5304 15 20C15 19.4696 15.2107 18.9609 15.5858 18.5858C15.9609 18.2107 16.4696 18 17 18ZM1 2H4.27L5.21 4H20C20.2652 4 20.5196 4.10536 20.7071 4.29289C20.8946 4.48043 21 4.73478 21 5C21 5.17 20.95 5.34 20.88 5.5L17.3 11.97C16.96 12.58 16.3 13 15.55 13H8.12L7.2 14.63L7.17 14.75C7.17 14.8163 7.19634 14.8799 7.24322 14.9268C7.29011 14.9737 7.3537 15 7.42 15H19V17H7C6.46957 17 5.96086 16.7893 5.58579 16.4142C5.21071 16.0391 5 15.5304 5 15C5 14.65 5.09 14.32 5.24 14.04L6.6 11.59L3 4H1V2ZM7 18C7.53043 18 8.03914 18.2107 8.41421 18.5858C8.78929 18.9609 9 19.4696 9 20C9 20.5304 8.78929 21.0391 8.41421 21.4142C8.03914 21.7893 7.53043 22 7 22C6.46957 22 5.96086 21.7893 5.58579 21.4142C5.21071 21.0391 5 20.5304 5 20C5 19.4696 5.21071 18.9609 5.58579 18.5858C5.96086 18.2107 6.46957 18 7 18ZM16 11L18.78 6H6.14L8.14 11H16Z" fill="black"/>
+                                            </svg>
+                                        </button>
+                                    </div>
+                                    <div class="product-info">
+                                        <h3 class="product-title">${product.title}</h3>
+                                        <p class="product-price">${product.price}</p>
+                                    </div>
+                                </div>
+                            `).join('')}
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+        
+        // Close looks drawer
+        function closeLooksDrawer() {
+            const overlay = document.getElementById('looksDrawerOverlay');
+            overlay.classList.remove('active');
+        }
+        
+        // Navigate to product page
+        function openProductPage(title, price, image, category) {
+            const params = new URLSearchParams({
+                title: title,
+                price: price,
+                image: image,
+                category: category
+            });
+            window.location.href = `product.html?${params.toString()}`;
+        }
+        
+        // Handle tag click
+        function handleTagClick(event, tagName) {
+            event.preventDefault();
+            
+            // Close the search results drawer
+            closeSearchResults();
+            
+            // Add user message showing the refined search
+            const refinedSearch = `red dress for dinner party ${tagName.toLowerCase()}`;
+            addUserMessage(refinedSearch);
+            
+            // Filter products based on tag
+            let filteredProducts = [];
+            const allProducts = products['red dress for dinner party'] || [];
+            
+            switch(tagName) {
+                case 'Under $100':
+                    filteredProducts = [
+                        { image: 'red-dress/r015830017-11742906075_1.jpg', title: 'Burgundy Halter', price: '$89' },
+                        { image: 'red-dress/r194000013-11749651391.jpg', title: 'Fuchsia Asymmetric', price: '$95' }
+                    ];
+                    break;
+                case 'Evening':
+                    filteredProducts = allProducts.filter(p => 
+                        p.title.includes('Evening') || p.title.includes('Satin') || p.title.includes('Silk')
+                    );
+                    break;
+                case 'Cocktail':
+                    filteredProducts = allProducts.filter(p => 
+                        p.title.includes('Cocktail') || p.title.includes('Ruffle') || p.title.includes('Asymmetric')
+                    );
+                    break;
+                case 'Designer':
+                    filteredProducts = allProducts.filter(p => 
+                        parseInt(p.price.replace('$', '')) > 150
+                    );
+                    break;
+                case 'Silk':
+                    filteredProducts = [
+                        { image: 'red-dress/w578910013-11722528067.jpg', title: 'Red Silk Wrap', price: '$165' }
+                    ];
+                    break;
+                case 'Trending':
+                    filteredProducts = allProducts.slice(0, 3); // First 3 as trending
+                    break;
+                default:
+                    filteredProducts = allProducts;
+            }
+            
+            // Store the filtered products
+            currentFilteredProducts = filteredProducts;
+            
+            // Add assistant message with filtered results
+            setTimeout(() => {
+                addFilteredAssistantMessage(filteredProducts, tagName);
+            }, 1000);
+        }
+        
+        // View filtered products
+        function viewFilteredProducts(tagName) {
+            const overlay = document.getElementById('searchResultsOverlay');
+            const content = document.getElementById('searchResultsContent');
+            
+            // Get the last user message (the filtered search message)
+            const userMessages = document.querySelectorAll('.user-message');
+            const lastUserMessage = userMessages[userMessages.length - 1];
+            
+            // Scroll the chat so the last user message is pushed much higher
+            const chatMessagesArea = document.getElementById('chatMessagesArea');
+            const headerHeight = 80; // Account for chat header
+            const desiredBubblePosition = headerHeight + 20; // Position bubble just below header
+            const targetScrollTop = lastUserMessage.offsetTop - desiredBubblePosition;
+            chatMessagesArea.scrollTo({
+                top: targetScrollTop,
+                behavior: 'smooth'
+            });
+            
+            // Wait for scroll to complete before showing drawer
+            setTimeout(() => {
+                // Calculate drawer to take maximum available space
+                // Position drawer to start just below the header and yellow bubble
+                const drawerTop = headerHeight + 80; // Header + bubble height + spacing
+                const drawerHeight = window.innerHeight - drawerTop;
+                
+                // Set the drawer height
+                overlay.style.height = `${drawerHeight}px`;
+            
+                // Generate the search results HTML
+                const resultsHTML = `
+                    <div class="results-container visible">
+                        <div class="results-header">
+                            <p class="results-count">${currentFilteredProducts.length} ${tagName.toLowerCase()} results found</p>
+                        </div>
+                        <div class="products-grid">
+                            ${currentFilteredProducts.map((product, index) => `
+                                <div class="product-card" style="animation-delay: ${0.1 * index}s" onclick="openProductPage('${product.title}', '${product.price}', '${product.image}', 'dress')">
+                                    <div class="product-image-container">
+                                        <img src="${product.image}" alt="${product.title}" class="product-image">
+                                        <button class="add-to-cart-btn" onclick="event.stopPropagation()">
+                                            <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                                <path d="M17 18C17.5304 18 18.0391 18.2107 18.4142 18.5858C18.7893 18.9609 19 19.4696 19 20C19 20.5304 18.7893 21.0391 18.4142 21.4142C18.0391 21.7893 17.5304 22 17 22C16.4696 22 15.9609 21.7893 15.5858 21.4142C15.2107 21.0391 15 20.5304 15 20C15 19.4696 15.2107 18.9609 15.5858 18.5858C15.9609 18.2107 16.4696 18 17 18ZM1 2H4.27L5.21 4H20C20.2652 4 20.5196 4.10536 20.7071 4.29289C20.8946 4.48043 21 4.73478 21 5C21 5.17 20.95 5.34 20.88 5.5L17.3 11.97C16.96 12.58 16.3 13 15.55 13H8.12L7.2 14.63L7.17 14.75C7.17 14.8163 7.19634 14.8799 7.24322 14.9268C7.29011 14.9737 7.3537 15 7.42 15H19V17H7C6.46957 17 5.96086 16.7893 5.58579 16.4142C5.21071 16.0391 5 15.5304 5 15C5 14.65 5.09 14.32 5.24 14.04L6.6 11.59L3 4H1V2ZM7 18C7.53043 18 8.03914 18.2107 8.41421 18.5858C8.78929 18.9609 9 19.4696 9 20C9 20.5304 8.78929 21.0391 8.41421 21.4142C8.03914 21.7893 7.53043 22 7 22C6.46957 22 5.96086 21.7893 5.58579 21.4142C5.21071 21.0391 5 20.5304 5 20C5 19.4696 5.21071 18.9609 5.58579 18.5858C5.96086 18.2107 6.46957 18 7 18ZM16 11L18.78 6H6.14L8.14 11H16Z" fill="black"/>
+                                            </svg>
+                                        </button>
+                                    </div>
+                                    <div class="product-info">
+                                        <h3 class="product-title">${product.title}</h3>
+                                        <p class="product-price">${product.price}</p>
+                                    </div>
+                                </div>
+                            `).join('')}
+                        </div>
+                    </div>
+                `;
+                
+                // Update the content
+                content.innerHTML = resultsHTML;
+                
+                // Add the necessary styles from search-results.html
+                addSearchResultsStyles();
+                
+                // Show the overlay with animation
+                setTimeout(() => {
+                    overlay.classList.add('active');
+                    // Show the focus search tags
+                    document.getElementById('focusSearchTags').style.display = 'block';
+                }, 50);
+            }, 300); // Wait 300ms for scroll to complete
+        }
+        
+        // Make functions available globally
+        window.viewLooks = viewLooks;
+        window.updateLooksContent = updateLooksContent;
+        window.closeLooksDrawer = closeLooksDrawer;
+        window.openProductPage = openProductPage;
+        window.showNotification = showNotification;
+        window.dismissNotification = dismissNotification;
+        window.viewNotificationProduct = viewNotificationProduct;
+        window.handleTagClick = handleTagClick;
+        window.viewFilteredProducts = viewFilteredProducts;
     </script>
 
     <!-- Search Results Drawer -->
@@ -760,6 +1708,15 @@
         <div class="drawer-handle"></div>
         <button class="close-results" onclick="closeSearchResults()">×</button>
         <div class="search-results-content" id="searchResultsContent">
+            <!-- Content will be loaded dynamically -->
+        </div>
+    </div>
+    
+    <!-- Looks Drawer -->
+    <div class="looks-drawer-overlay" id="looksDrawerOverlay">
+        <div class="drawer-handle"></div>
+        <button class="close-results" onclick="closeLooksDrawer()">×</button>
+        <div class="looks-drawer-content" id="looksDrawerContent">
             <!-- Content will be loaded dynamically -->
         </div>
     </div>

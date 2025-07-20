@@ -1,0 +1,770 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black">
+    <title>Product - Terminalix</title>
+    <link rel="stylesheet" href="styles.css">
+    <style>
+        body {
+            background: var(--primary-black);
+            min-height: 100vh;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .product-header {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            background: rgba(0, 0, 0, 0.95);
+            backdrop-filter: blur(10px);
+            border-bottom: 1px solid var(--border-color);
+            padding: 20px;
+            z-index: 100;
+        }
+
+        .header-content {
+            max-width: 1200px;
+            margin: 0 auto;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .back-button {
+            background: transparent;
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            color: var(--primary-white);
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s ease;
+        }
+
+        .back-button:hover {
+            background: rgba(255, 255, 255, 0.1);
+            border-color: var(--accent-yellow);
+        }
+
+        .header-actions {
+            display: flex;
+            gap: 12px;
+        }
+
+        .header-icon {
+            background: transparent;
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            color: var(--primary-white);
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s ease;
+            position: relative;
+        }
+
+        .header-icon:hover {
+            background: rgba(255, 255, 255, 0.1);
+            border-color: var(--accent-yellow);
+        }
+
+        .cart-count {
+            position: absolute;
+            top: -4px;
+            right: -4px;
+            background: var(--accent-yellow);
+            color: var(--primary-black);
+            font-size: 10px;
+            font-weight: 600;
+            padding: 2px 6px;
+            border-radius: 10px;
+            min-width: 18px;
+            text-align: center;
+        }
+
+        .product-container {
+            flex: 1;
+            padding-top: 80px;
+            padding-bottom: 80px;
+            overflow-y: auto;
+            -webkit-overflow-scrolling: touch;
+        }
+
+        .product-content {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+            display: flex;
+            gap: 40px;
+            align-items: flex-start;
+        }
+
+        .product-images {
+            flex: 1;
+            position: sticky;
+            top: 20px;
+        }
+
+        .main-image {
+            width: 100%;
+            aspect-ratio: 3/4;
+            border-radius: 20px;
+            overflow: hidden;
+            background: linear-gradient(135deg, #1a1a1a 0%, #2a2a2a 100%);
+            border: 1px solid rgba(255, 215, 0, 0.2);
+            margin-bottom: 20px;
+        }
+
+        .main-image img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .image-thumbnails {
+            display: flex;
+            gap: 12px;
+            overflow-x: auto;
+            padding-bottom: 8px;
+        }
+
+        .thumbnail {
+            width: 80px;
+            height: 100px;
+            border-radius: 12px;
+            overflow: hidden;
+            cursor: pointer;
+            border: 2px solid transparent;
+            transition: all 0.3s ease;
+            flex-shrink: 0;
+        }
+
+        .thumbnail.active {
+            border-color: var(--accent-yellow);
+        }
+
+        .thumbnail:hover {
+            transform: scale(1.05);
+        }
+
+        .thumbnail img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .product-details {
+            flex: 1;
+        }
+
+        .product-brand {
+            font-size: 14px;
+            color: #666;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 8px;
+        }
+
+        .product-name {
+            font-size: 32px;
+            font-weight: 300;
+            color: var(--primary-white);
+            margin-bottom: 16px;
+            line-height: 1.2;
+        }
+
+        .product-pricing {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            margin-bottom: 24px;
+        }
+
+        .current-price {
+            font-size: 28px;
+            font-weight: 400;
+            color: var(--accent-yellow);
+        }
+
+        .original-price {
+            font-size: 20px;
+            color: #666;
+            text-decoration: line-through;
+        }
+
+        .discount-badge {
+            background: rgba(255, 215, 0, 0.2);
+            color: var(--accent-yellow);
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 14px;
+            font-weight: 500;
+        }
+
+        .product-description {
+            font-size: 16px;
+            line-height: 1.6;
+            color: #ccc;
+            margin-bottom: 32px;
+        }
+
+        .product-options {
+            margin-bottom: 32px;
+        }
+
+        .option-group {
+            margin-bottom: 24px;
+        }
+
+        .option-label {
+            font-size: 14px;
+            color: #999;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 12px;
+        }
+
+        .size-options, .color-options {
+            display: flex;
+            gap: 12px;
+            flex-wrap: wrap;
+        }
+
+        .size-option, .color-option {
+            padding: 12px 24px;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            background: transparent;
+            color: var(--primary-white);
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-size: 14px;
+        }
+
+        .size-option:hover, .color-option:hover {
+            border-color: var(--accent-yellow);
+            background: rgba(255, 215, 0, 0.1);
+        }
+
+        .size-option.selected, .color-option.selected {
+            background: var(--accent-yellow);
+            color: var(--primary-black);
+            border-color: var(--accent-yellow);
+        }
+
+        .color-option {
+            width: 40px;
+            height: 40px;
+            padding: 0;
+            border-radius: 50%;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .color-swatch {
+            width: 100%;
+            height: 100%;
+            border-radius: 50%;
+        }
+
+        .add-to-cart-section {
+            display: flex;
+            gap: 16px;
+            margin-bottom: 32px;
+        }
+
+        .quantity-selector {
+            display: flex;
+            align-items: center;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 8px;
+            overflow: hidden;
+        }
+
+        .quantity-btn {
+            background: transparent;
+            border: none;
+            color: var(--primary-white);
+            width: 40px;
+            height: 48px;
+            cursor: pointer;
+            font-size: 20px;
+            transition: all 0.3s ease;
+        }
+
+        .quantity-btn:hover {
+            background: rgba(255, 255, 255, 0.1);
+        }
+
+        .quantity-value {
+            padding: 0 20px;
+            font-size: 16px;
+            color: var(--primary-white);
+        }
+
+        .add-to-cart {
+            flex: 1;
+            background: var(--accent-yellow);
+            border: none;
+            color: var(--primary-black);
+            padding: 16px 32px;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+
+        .add-to-cart:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 24px rgba(255, 215, 0, 0.3);
+        }
+
+        .add-to-cart:active {
+            transform: translateY(0);
+        }
+
+        .product-features {
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+            padding-top: 32px;
+            margin-top: 32px;
+        }
+
+        .feature-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 16px;
+            color: #ccc;
+            font-size: 14px;
+        }
+
+        .feature-icon {
+            width: 24px;
+            height: 24px;
+            color: var(--accent-yellow);
+        }
+
+        @media (max-width: 1024px) {
+            .product-content {
+                flex-direction: column;
+            }
+
+            .product-images {
+                position: relative;
+                top: auto;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .product-name {
+                font-size: 24px;
+            }
+
+            .current-price {
+                font-size: 24px;
+            }
+
+            .add-to-cart-section {
+                flex-direction: column;
+            }
+
+            .quantity-selector {
+                width: 100%;
+                justify-content: center;
+            }
+        }
+        /* Notification styles */
+        .notification-container {
+            position: fixed;
+            top: -200px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 90%;
+            max-width: 400px;
+            background: linear-gradient(135deg, #1a1a1a 0%, #2a2a2a 100%);
+            border: 1px solid rgba(255, 215, 0, 0.3);
+            border-radius: 16px;
+            padding: 16px;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.8), 0 0 20px rgba(255, 215, 0, 0.2);
+            z-index: 1000;
+            transition: all 0.5s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+            opacity: 0;
+        }
+
+        .notification-container.show {
+            top: 80px;
+            opacity: 1;
+        }
+
+        .notification-content {
+            display: flex;
+            gap: 12px;
+            align-items: center;
+        }
+
+        .notification-image {
+            width: 60px;
+            height: 60px;
+            border-radius: 12px;
+            overflow: hidden;
+            flex-shrink: 0;
+            border: 1px solid rgba(255, 215, 0, 0.2);
+        }
+
+        .notification-image img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .notification-text {
+            flex: 1;
+        }
+
+        .notification-title {
+            font-size: 14px;
+            font-weight: 500;
+            color: var(--accent-yellow);
+            margin-bottom: 4px;
+        }
+
+        .notification-message {
+            font-size: 13px;
+            color: #ccc;
+            line-height: 1.4;
+        }
+
+        .notification-actions {
+            display: flex;
+            gap: 8px;
+            margin-top: 12px;
+        }
+
+        .notification-btn {
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            border: none;
+        }
+
+        .notification-btn-primary {
+            background: var(--accent-yellow);
+            color: var(--primary-black);
+        }
+
+        .notification-btn-primary:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(255, 215, 0, 0.3);
+        }
+
+        .notification-btn-secondary {
+            background: transparent;
+            color: #999;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .notification-btn-secondary:hover {
+            background: rgba(255, 255, 255, 0.05);
+            border-color: rgba(255, 255, 255, 0.3);
+        }
+    </style>
+</head>
+<body>
+    <!-- Notification -->
+    <div class="notification-container" id="notificationContainer">
+        <div class="notification-content">
+            <div class="notification-image">
+                <img src="Looks/ring2.jpg" alt="Rose Gold Signet Ring">
+            </div>
+            <div class="notification-text">
+                <div class="notification-title">Perfect Match Found!</div>
+                <div class="notification-message">This rose gold signet ring would look stunning with the red dress you bought two weeks ago</div>
+            </div>
+        </div>
+        <div class="notification-actions">
+            <button class="notification-btn notification-btn-primary" onclick="viewNotificationProduct()">View</button>
+            <button class="notification-btn notification-btn-secondary" onclick="dismissNotification()">Later</button>
+        </div>
+    </div>
+
+    <header class="product-header">
+        <div class="header-content">
+            <button class="back-button" onclick="window.history.back()">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M15 18L9 12L15 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+            </button>
+            <div class="header-actions">
+                <button class="header-icon">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                    </svg>
+                </button>
+                <button class="header-icon">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M9 2L3 5V19C3 19.5304 3.21071 20.0391 3.58579 20.4142C3.96086 20.7893 4.46957 21 5 21H19C19.5304 21 20.0391 20.7893 20.4142 20.4142C20.7893 20.0391 21 19.5304 21 19V5L15 2H9Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                        <path d="M9 2V5H15V2" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                        <path d="M12 10V17" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                        <path d="M8 14H16" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                    </svg>
+                    <span class="cart-count">0</span>
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <div class="product-container">
+        <div class="product-content">
+            <div class="product-images">
+                <div class="main-image">
+                    <img id="mainImage" src="" alt="">
+                </div>
+                <div class="image-thumbnails" id="thumbnails">
+                    <!-- Thumbnails will be added dynamically -->
+                </div>
+            </div>
+
+            <div class="product-details">
+                <div class="product-brand" id="productBrand">DESIGNER BRAND</div>
+                <h1 class="product-name" id="productName"></h1>
+                
+                <div class="product-pricing">
+                    <span class="current-price" id="currentPrice"></span>
+                    <span class="original-price" id="originalPrice"></span>
+                    <span class="discount-badge" id="discountBadge"></span>
+                </div>
+
+                <p class="product-description" id="productDescription">
+                    This stunning piece combines elegance with contemporary style. 
+                    Crafted from premium materials, it features meticulous attention to detail 
+                    and superior construction. Perfect for special occasions or elevating your everyday wardrobe.
+                </p>
+
+                <div class="product-options">
+                    <div class="option-group">
+                        <div class="option-label">Size</div>
+                        <div class="size-options" id="sizeOptions">
+                            <button class="size-option" data-size="XS">XS</button>
+                            <button class="size-option" data-size="S">S</button>
+                            <button class="size-option selected" data-size="M">M</button>
+                            <button class="size-option" data-size="L">L</button>
+                            <button class="size-option" data-size="XL">XL</button>
+                        </div>
+                    </div>
+
+                    <div class="option-group">
+                        <div class="option-label">Color</div>
+                        <div class="color-options" id="colorOptions">
+                            <!-- Color options will be added dynamically based on product -->
+                        </div>
+                    </div>
+                </div>
+
+                <div class="add-to-cart-section">
+                    <div class="quantity-selector">
+                        <button class="quantity-btn" onclick="updateQuantity(-1)">−</button>
+                        <span class="quantity-value" id="quantityValue">1</span>
+                        <button class="quantity-btn" onclick="updateQuantity(1)">+</button>
+                    </div>
+                    <button class="add-to-cart" onclick="addToCart()">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <path d="M9 2L3 5V19C3 19.5304 3.21071 20.0391 3.58579 20.4142C3.96086 20.7893 4.46957 21 5 21H19C19.5304 21 20.0391 20.7893 20.4142 20.4142C20.7893 20.0391 21 19.5304 21 19V5L15 2H9Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                            <path d="M9 2V5H15V2" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                        </svg>
+                        Add to Cart
+                    </button>
+                </div>
+
+                <div class="product-features">
+                    <div class="feature-item">
+                        <svg class="feature-icon" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <path d="M22 12L12 2L2 12H5V20H9V14H15V20H19V12H22Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                        </svg>
+                        Free shipping on orders over $100
+                    </div>
+                    <div class="feature-item">
+                        <svg class="feature-icon" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <path d="M3 9L12 2L21 9V20C21 20.5304 20.7893 21.0391 20.4142 21.4142C20.0391 21.7893 19.5304 22 19 22H5C4.46957 22 3.96086 21.7893 3.58579 21.4142C3.21071 21.0391 3 20.5304 3 20V9Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                            <path d="M9 22V12H15V22" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                        </svg>
+                        Easy 30-day returns
+                    </div>
+                    <div class="feature-item">
+                        <svg class="feature-icon" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <path d="M12 2L2 7V12C2 16.97 5.84 21.38 11.25 21.95C11.4975 21.9832 11.7486 22 12 22C12.2514 22 12.5025 21.9832 12.75 21.95C18.16 21.38 22 16.97 22 12V7L12 2Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                            <path d="M9 12L11 14L15 10" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                        </svg>
+                        Secure checkout
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Get product data from URL parameters
+        const urlParams = new URLSearchParams(window.location.search);
+        const productTitle = urlParams.get('title') || '';
+        const productPrice = urlParams.get('price') || '';
+        const productImage = urlParams.get('image') || '';
+        const productCategory = urlParams.get('category') || '';
+
+        // Initialize product details
+        document.getElementById('productName').textContent = productTitle;
+        document.getElementById('currentPrice').textContent = productPrice;
+        document.getElementById('mainImage').src = productImage;
+        document.getElementById('mainImage').alt = productTitle;
+
+        // Add thumbnails (in a real app, these would come from a database)
+        const thumbnailsContainer = document.getElementById('thumbnails');
+        const images = [productImage]; // In a real app, you'd have multiple images
+        
+        images.forEach((img, index) => {
+            const thumbnail = document.createElement('div');
+            thumbnail.className = `thumbnail ${index === 0 ? 'active' : ''}`;
+            thumbnail.innerHTML = `<img src="${img}" alt="${productTitle}">`;
+            thumbnail.onclick = () => selectImage(img, index);
+            thumbnailsContainer.appendChild(thumbnail);
+        });
+
+        // Handle size selection
+        document.querySelectorAll('.size-option').forEach(btn => {
+            btn.addEventListener('click', function() {
+                document.querySelectorAll('.size-option').forEach(b => b.classList.remove('selected'));
+                this.classList.add('selected');
+            });
+        });
+
+        // Quantity controls
+        let quantity = 1;
+        function updateQuantity(change) {
+            quantity = Math.max(1, quantity + change);
+            document.getElementById('quantityValue').textContent = quantity;
+        }
+
+        // Select image
+        function selectImage(imageSrc, index) {
+            document.getElementById('mainImage').src = imageSrc;
+            document.querySelectorAll('.thumbnail').forEach((thumb, i) => {
+                thumb.classList.toggle('active', i === index);
+            });
+        }
+
+        // Add to cart
+        function addToCart() {
+            const selectedSize = document.querySelector('.size-option.selected').dataset.size;
+            const cartCount = document.querySelector('.cart-count');
+            const currentCount = parseInt(cartCount.textContent) || 0;
+            cartCount.textContent = currentCount + quantity;
+            
+            // Show confirmation (in a real app, this would update the cart state)
+            const button = document.querySelector('.add-to-cart');
+            const originalText = button.innerHTML;
+            button.innerHTML = '✓ Added to Cart';
+            button.style.background = '#4CAF50';
+            
+            setTimeout(() => {
+                button.innerHTML = originalText;
+                button.style.background = '';
+            }, 2000);
+        }
+
+        // Initialize cart count from localStorage or session
+        window.addEventListener('DOMContentLoaded', () => {
+            const savedCartCount = localStorage.getItem('cartCount') || '0';
+            document.querySelector('.cart-count').textContent = savedCartCount;
+        });
+
+        // Click counter for notification
+        let clickCount = 0;
+        let notificationShown = false;
+
+        // Function to handle clicks/taps
+        function handleInteraction(e) {
+            // Don't count clicks on interactive elements
+            if (e.target.tagName === 'BUTTON' || 
+                e.target.tagName === 'INPUT' || 
+                e.target.tagName === 'A' ||
+                e.target.closest('button') ||
+                e.target.closest('.notification-container')) {
+                return;
+            }
+
+            clickCount++;
+            console.log('Click count:', clickCount); // Debug log
+            
+            if (clickCount >= 5 && !notificationShown) {
+                showNotification();
+                notificationShown = true;
+            }
+        }
+
+        // Listen for both click and touch events
+        document.addEventListener('click', handleInteraction);
+        document.addEventListener('touchstart', function(e) {
+            // Prevent double-firing on touch devices
+            if (e.touches.length === 1) {
+                handleInteraction(e);
+            }
+        });
+
+        // Show notification
+        function showNotification() {
+            const notification = document.getElementById('notificationContainer');
+            notification.classList.add('show');
+            
+            // Auto dismiss after 30 seconds
+            setTimeout(() => {
+                if (notification.classList.contains('show')) {
+                    dismissNotification();
+                }
+            }, 30000);
+        }
+
+        // Dismiss notification
+        function dismissNotification() {
+            const notification = document.getElementById('notificationContainer');
+            notification.classList.remove('show');
+            
+            // Reset after animation
+            setTimeout(() => {
+                clickCount = 0;
+                notificationShown = false;
+            }, 500);
+        }
+
+        // View product from notification - navigate to the same product with different params
+        function viewNotificationProduct() {
+            dismissNotification();
+            const params = new URLSearchParams({
+                title: 'Rose Gold Signet Ring',
+                price: '$159',
+                image: 'Looks/ring2.jpg',
+                category: 'accessories'
+            });
+            window.location.href = `product.html?${params.toString()}`;
+        }
+    </script>
+</body>
+</html>

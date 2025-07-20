@@ -7,6 +7,91 @@ document.addEventListener('DOMContentLoaded', () => {
     const chatMessages = document.getElementById('chatMessages');
     const inspirationCarousel = document.getElementById('inspirationCarousel');
     const carouselItems = document.querySelectorAll('.carousel-item');
+    
+    // Create notification element
+    const notificationHTML = `
+        <div class="notification-container" id="notificationContainer">
+            <div class="notification-content">
+                <div class="notification-image">
+                    <img src="Looks/ring2.jpg" alt="Rose Gold Signet Ring">
+                </div>
+                <div class="notification-text">
+                    <div class="notification-title">Perfect Match Found!</div>
+                    <div class="notification-message">This rose gold signet ring would look stunning with the red dress you bought two weeks ago</div>
+                </div>
+            </div>
+            <div class="notification-actions">
+                <button class="notification-btn notification-btn-primary" onclick="viewNotificationProduct()">View</button>
+                <button class="notification-btn notification-btn-secondary" onclick="dismissNotification()">Later</button>
+            </div>
+        </div>
+    `;
+    document.body.insertAdjacentHTML('afterbegin', notificationHTML);
+    
+    // Click counter for notification
+    let clickCount = 0;
+    let notificationShown = false;
+
+    // Function to handle clicks/taps
+    function handleInteraction(e) {
+        // Don't count clicks on interactive elements
+        if (e.target.tagName === 'BUTTON' || 
+            e.target.tagName === 'INPUT' || 
+            e.target.tagName === 'A' ||
+            e.target.closest('button') ||
+            e.target.closest('.carousel-item') ||
+            e.target.closest('.notification-container')) {
+            return;
+        }
+
+        clickCount++;
+        console.log('Click count:', clickCount); // Debug log
+        
+        if (clickCount >= 5 && !notificationShown) {
+            showNotification();
+            notificationShown = true;
+        }
+    }
+
+    // Listen for both click and touch events
+    document.addEventListener('click', handleInteraction);
+    document.addEventListener('touchstart', function(e) {
+        // Prevent double-firing on touch devices
+        if (e.touches.length === 1) {
+            handleInteraction(e);
+        }
+    });
+
+    // Show notification
+    window.showNotification = function() {
+        const notification = document.getElementById('notificationContainer');
+        notification.classList.add('show');
+        
+        // Auto dismiss after 30 seconds
+        setTimeout(() => {
+            if (notification.classList.contains('show')) {
+                dismissNotification();
+            }
+        }, 30000);
+    }
+
+    // Dismiss notification
+    window.dismissNotification = function() {
+        const notification = document.getElementById('notificationContainer');
+        notification.classList.remove('show');
+        
+        // Reset after animation
+        setTimeout(() => {
+            clickCount = 0;
+            notificationShown = false;
+        }, 500);
+    }
+
+    // View product from notification
+    window.viewNotificationProduct = function() {
+        dismissNotification();
+        window.location.href = 'product.html?title=Rose%20Gold%20Signet%20Ring&price=$159&image=Looks/ring2.jpg&category=accessories';
+    }
 
     setTimeout(() => {
         chatInput.focus();
