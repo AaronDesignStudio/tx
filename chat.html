@@ -765,7 +765,7 @@
     <div class="chat-input-area">
         <div class="tags-container" id="focusSearchTags" style="display: none;">
             <div class="tags-title">Let's focus your search</div>
-            <div class="tags-scroll-wrapper">
+            <div class="tags-scroll-wrapper" id="tagsWrapper">
                 <a href="#" class="tag-pill" onclick="handleTagClick(event, 'Evening')">Evening</a>
                 <a href="#" class="tag-pill" onclick="handleTagClick(event, 'Cocktail')">Cocktail</a>
                 <a href="#" class="tag-pill" onclick="handleTagClick(event, 'Under $100')">Under $100</a>
@@ -1011,7 +1011,7 @@
             // Show the overlay with animation
             setTimeout(() => {
                 overlay.classList.add('active');
-                // Show the focus search tags
+                // Show the regular focus search tags
                 document.getElementById('focusSearchTags').style.display = 'block';
             }, 50);
         }
@@ -1020,8 +1020,19 @@
         function closeSearchResults() {
             const overlay = document.getElementById('searchResultsOverlay');
             overlay.classList.remove('active');
-            // Hide the focus search tags
+            // Hide tags
             document.getElementById('focusSearchTags').style.display = 'none';
+            
+            // Restore original tags
+            const tagsWrapper = document.getElementById('tagsWrapper');
+            tagsWrapper.innerHTML = `
+                <a href="#" class="tag-pill" onclick="handleTagClick(event, 'Evening')">Evening</a>
+                <a href="#" class="tag-pill" onclick="handleTagClick(event, 'Cocktail')">Cocktail</a>
+                <a href="#" class="tag-pill" onclick="handleTagClick(event, 'Under $100')">Under $100</a>
+                <a href="#" class="tag-pill" onclick="handleTagClick(event, 'Designer')">Designer</a>
+                <a href="#" class="tag-pill" onclick="handleTagClick(event, 'Silk')">Silk</a>
+                <a href="#" class="tag-pill" onclick="handleTagClick(event, 'Trending')">Trending</a>
+            `;
         }
         
         // Add search results specific styles
@@ -1485,8 +1496,21 @@
                 // Show the overlay with animation
                 setTimeout(() => {
                     overlay.classList.add('active');
-                    // Show the focus search tags
+                    
+                    // For Under $100 filtered view, update the tags
                     document.getElementById('focusSearchTags').style.display = 'block';
+                    
+                    if (tagName === 'Under $100') {
+                        // Replace tags with filtered options
+                        const tagsWrapper = document.getElementById('tagsWrapper');
+                        tagsWrapper.innerHTML = `
+                            <a href="#" class="tag-pill" onclick="handleTagClick(event, 'Maxi Dress')">Maxi Dress</a>
+                            <a href="#" class="tag-pill" onclick="handleTagClick(event, 'Long Sleeve')">Long Sleeve</a>
+                            <a href="#" class="tag-pill" onclick="handleTagClick(event, 'Short Sleeve')">Short Sleeve</a>
+                            <a href="#" class="tag-pill" onclick="handleTagClick(event, 'Designer Dress')">Designer Dress</a>
+                            <a href="#" class="tag-pill" onclick="handleTagClick(event, 'Bulgari Dresses')">Bulgari Dresses</a>
+                        `;
+                    }
                 }, 50);
             }, 300); // Wait 300ms for scroll to complete
         }
