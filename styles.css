@@ -15,14 +15,23 @@
 
 .inspiration-carousel {
     position: fixed;
-    top: 55%;
     left: 0;
     right: 0;
-    transform: translateY(-50%);
     opacity: 0;
     animation: carouselFadeIn 0.8s ease-out 3s forwards;
-    padding: 0 1rem;
+    padding: 1rem 0;
     z-index: 5;
+    overflow: hidden;
+}
+
+.carousel-top {
+    top: 33%;
+    transform: translateY(-50%);
+}
+
+.carousel-bottom {
+    top: 67%;
+    transform: translateY(-50%);
 }
 
 @keyframes carouselFadeIn {
@@ -34,10 +43,13 @@
 .carousel-wrapper {
     display: flex;
     gap: 1rem;
-    overflow: hidden;
-    padding: 0.5rem 0;
+    overflow-x: hidden;
+    overflow-y: visible;
+    padding: 1rem 0;
     position: relative;
     width: 100%;
+    height: auto;
+    align-items: flex-start;
 }
 
 .carousel-wrapper::before,
@@ -66,7 +78,16 @@
         transform: translateX(0);
     }
     100% {
-        transform: translateX(calc(-196px * 6));
+        transform: translateX(calc(-170px * 6));
+    }
+}
+
+@keyframes scrollReverse {
+    0% {
+        transform: translateX(calc(-170px * 6));
+    }
+    100% {
+        transform: translateX(0);
     }
 }
 
@@ -74,15 +95,24 @@
     animation: scroll 200s linear infinite;
 }
 
-.inspiration-carousel:hover .carousel-wrapper > * {
+.carousel-reverse > * {
+    animation: scrollReverse 200s linear infinite;
+}
+
+.inspiration-carousel:hover .carousel-wrapper > *,
+.inspiration-carousel:hover .carousel-reverse > * {
     animation-play-state: paused;
 }
 
 .carousel-item {
-    flex: 0 0 180px;
+    flex: 0 0 154px;
     text-align: center;
     cursor: pointer;
     transition: transform 0.3s ease, opacity 0.3s ease;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding-bottom: 1rem;
 }
 
 .carousel-item:hover {
@@ -90,11 +120,12 @@
 }
 
 .carousel-image {
-    width: 180px;
-    height: 240px;
+    width: 154px;
+    height: auto;
+    aspect-ratio: 3/4;
     border-radius: 16px;
     overflow: hidden;
-    margin-bottom: 1rem;
+    margin-bottom: 0.8rem;
     position: relative;
     background: linear-gradient(135deg, #1a1a1a 0%, #2a2a2a 100%);
     border: 1px solid rgba(255, 215, 0, 0.2);
@@ -137,12 +168,12 @@
 }
 
 .carousel-query {
-    font-size: 14px;
+    font-size: 12px;
     color: var(--primary-white);
-    padding: 0.6rem 1rem;
+    padding: 0.5rem 0.8rem;
     background: rgba(255, 215, 0, 0.1);
     border: 1px solid rgba(255, 215, 0, 0.3);
-    border-radius: 24px;
+    border-radius: 20px;
     display: inline-block;
     backdrop-filter: blur(10px);
     transition: all 0.3s ease;
