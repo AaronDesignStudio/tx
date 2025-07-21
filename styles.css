@@ -92,11 +92,11 @@
 }
 
 .carousel-wrapper > * {
-    animation: scroll 200s linear infinite;
+    animation: scroll 50s linear infinite;
 }
 
 .carousel-reverse > * {
-    animation: scrollReverse 200s linear infinite;
+    animation: scrollReverse 50s linear infinite;
 }
 
 .inspiration-carousel:hover .carousel-wrapper > *,
